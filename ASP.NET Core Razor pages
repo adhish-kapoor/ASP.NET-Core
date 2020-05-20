@@ -69,7 +69,7 @@ The team behind Razor Pages have largely moved away from using the dynamic type.
 
 ===Adding Navigation
 ->_Layout.cshtml file located in the Pages/Shared folder
--> <li class="nav-item">
+<li class="nav-item">
     <a class="nav-link text-dark" asp-page="/Index">Home</a>
 </li>
 <li class="nav-item">
@@ -82,4 +82,155 @@ The anchor tag helper targets the HTML a element.
 Instead of providing an href attribute to point to an internal page, 
 you provide an asp-page attribute that takes the path of the page, relative to the root Pages folder.
 
-->
+===Adding Entity Framework Core
+-> ORM to use with ASP.NET Core applications is Entity Framework Core (EF Core).
+-> EF Core includes a number of providers - components that work with specific databases. Many providers are maintained by third parties. 
+The EF Core team maintain providers for SQL Server, and SQLite - a cross platform file-based database.
+->EF Core is not included in the project template by default. 
+It comes as a Nuget package which can be installed via the dotnet add package command. 
+        dotnet add package Microsoft.EntityFrameworkCore.Sqlite
+		
+===Adding And Registering A Context
+-> The primary EF Core component that you will use to communicate with the database is a class that derives from DbContext,known as the context. 
+The context represents a session with a database and provides an API for communicating with it with the following capabilities:
+
+1. Database Connections
+2. Data operations such as querying and persistance
+3. Change Tracking
+4. Model building
+5. Data Mapping
+6. Object caching
+7. Transaction management	
+	
+===Content Pages
+-> For a file to act as a Razor content page, it must have three characteristics:
+
+1. It cannot have a leading underscore in its file name
+2. The file extension is .cshtml
+3. The first line in the file is @page	
+
+The only other content permitted on the same line as the @page directive is a route template.
+
+===Single File Approach
+@page 
+@{
+    var name = string.Empty;
+    if (Request.HasFormContentType)
+    {
+        name = Request.Form["name"];
+    }
+}
+<div style="margin-top:30px;">
+    <form method="post">
+        <div>Name: <input name="name" /></div>
+        <div><input type="submit" /></div>
+    </form>
+</div>
+<div>
+    @if (!string.IsNullOrEmpty(name))
+    {
+        <p>Hello @name!</p>
+    }
+</div>
+
+-> The HasFormContentType property is used to determine whether a form has been posted and the Request.
+Form collection is referenced within a Razor code block with the relevant value within it assigned to the name variable.
+-> Single control structures do not need a code block. 
+You can simply prefix them with the @ sign. This is illustrated by the if block in the preceding example.
+
+===Functions Blocks
+@functions block to declare a public property which is decorated with the BindProperty attribute, 
+ensuring that the property takes part in model binding, removing the need to manually assign form values to variables.
+
+@page
+@functions {
+    [BindProperty]
+    public string Name { get; set; }
+}
+<div style="margin-top:30px;">
+    <form method="post">
+        <div>Name: <input name="name" /></div>
+        <div><input type="submit" /></div>
+    </form>
+    @if (!string.IsNullOrEmpty(Name))
+    {
+        <p>Hello @Name!</p>
+    }
+</div>
+
+-> This approach is an improvement on the previous in that is makes use of strong typing, 
+and while the processing logic can be restricted to the @functions block, the page will become more difficult to maintain and test. 
+Never the less, it is possible to declare methods and even nested classes in the @functions block.
+
+->You can also use the @functions block to declare local methods that include HTML to act as display helpers for the current page. 
+You might do this if a page has multiple blocks of code that included HTML and require similar formatting to be applied. 
+This is only possible in ASP.NET Core 3.x
+
+@functions{
+    void DisplayDate(DateTime dt)
+    {
+        <span class="date">@dt.ToString("dddd, dd MMMM yyyy")</span>
+    }
+}
+
+-> a method is declared that formats DateTime values.
+
+->Wherever you want to render a date with this formatting in a page, you would do the following:
+@DisplayDate(myDate)
+
+===PageModel Files
+-> The recommended way to develop Razor Pages applications is to minimise the amount of server-side code in the content page to the barest minimum. 
+Any code relating to the processing of user input or data should be placed in PageModel files, which share a one-to-one mapping with their associated content page. 
+They even share the same file name, albeit with an additional .cs on the end to denote the fact that they are actually C# class files.
+
+Example.cshtml:
+
+@page
+@model ExampleModel
+<div style="margin-top:30px;">
+    <form method="post">
+        <div>Name: <input asp-for="Name" /></div>
+        <div><input type="submit" /></div>
+    </form>
+    @if (!string.IsNullOrEmpty(Model.Name))
+    {
+        <p>Hello @Model.Name!</p>
+    }
+</div>
+
+Example.cshtml.cs:
+
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.RazorPages;
+namespace RazorPages.Pages
+{
+    public class ExampleModel : PageModel
+    {
+        [BindProperty]
+        public string Name { get; set; }
+    }
+}
+
+===Different types of Razor files
+-> Other Razor files have a leading underscore (_) in their file name. 
+These files are not intended to be browsable. 
+The leading underscore is often used for naming partial pages, 
+but three files named in this way have a particular function within a Razor Pages application.
+
+1. _Layout.cshtml link
+The _Layout.cshtml file acts a template for all content pages that reference it. 
+Consistent part of a site's design are declared in the _Layout.cshtml file. 
+These can include the header, footer, site navigation and so on. 
+Typically, the _Layout.cshtml file also includes the <head> section of the page, so they also reference the common CSS style sheet files and JavaScript files including analytics srvice's files. 
+If you want to make changes to the overall design of the site, you often only need to make adjustments to the content of the _Layout.cshtml file.
+
+2. _ViewStart.cshtml link
+The _ViewStart.cshtml file contains code that executes after the code in any content page in the same folder or any child folders. 
+It provides a convenient location to specify the layout file for all content pages that are affected by it, 
+and that is typically what you see in the _ViewStart.cshtml file that comes with any Razor Pages (or MVC) template.
+
+3. ViewImports.cshtml link
+The purpose of the _ViewImports.cshtml file is to provide a mechanism to make directives available to Razor pages globally so that you don't have to add them to pages individually.
+The default Razor Pages template includes a _ViewImports.cshtml file in the Pages folder - the root folder for Razor pages. 
+All Razor pages in the folder heirarchy will be affected by the directives set in the _ViewImports.cshtml file.
+
