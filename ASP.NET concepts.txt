@@ -201,3 +201,61 @@ public void Configure(IApplicationBuilder app) {
 -This piece of middleware is a little bit different than the other pieces of middleware, the other pieces of middleware are typically looking at the incoming request and making some decision about that request.
 -The UseDeveloperExceptionPage doesn't care so much about the incoming requests as it does what happens later in the pipeline.
 -It is going to just call into the next piece of middleware, but then it is going to wait to see if anything later in the pipeline generates an exception and if there is an exception, this piece of middleware will give you an error page with some additional information about that exception.
+
+
+5. Static files
+==============
+=> Static files like JavaScript files, images, CSS files that we have on the file system are the assets that ASP.NET Core application can serve directly to clients.
+Static files are typically located in the web root (wwwroot) folder.
+By default, that is the only place where we can serve up files directly from the file system.
+
+-Microsoft.AspNet.StaticFiles which will find the static files middleware. 
+Let us install this nuget package and now we should have additional methods that we can use to register middleware inside the Configure method.
+
+UseStaticFiles middle in Configure method as shown in the following program:
+ public void Configure(IApplicationBuilder app) { 
+         app.UseIISPlatformHandler();  
+         app.UseDeveloperExceptionPage(); 
+         app.UseRuntimeInfoPage(); 
+         app.UseStaticFiles(); 
+         
+         app.Run(async (context) => { 
+            throw new System.Exception("Throw Exception"); 
+            var msg = Configuration["message"]; 
+            await context.Response.WriteAsync(msg); 
+         }); 
+      }  
+
+-You can always give IIS a list of default files to look for. If someone came to the root of a directory or, in this case, the root of the website and if IIS found something named index.html, it would just automatically serve that file.
+Let us now start by making a few changes. First, we need to remove the forced error and then add another piece of middleware, which is UseDefaultFiles. 
+The following is the implementation of the Configure method:
+public void Configure(IApplicationBuilder app)  { 
+   app.UseIISPlatformHandler();  
+   app.UseDeveloperExceptionPage(); 
+   
+   app.UseRuntimeInfoPage();  
+   app.UseDefaultFiles(); 
+   app.UseStaticFiles();  
+   
+   app.Run(async (context) => { 
+      var msg = Configuration["message"]; 
+      await context.Response.WriteAsync(msg); 
+   });  
+}
+
+-If you are going to use UseDefaultFiles and UseStaticFiles, you might also want another piece of middleware that is inside the Microsoft.aspnet.staticfiles, NuGet package, and that is the FileServer middleware. 
+This essentially includes the Default Files and the Static Files in the correct order.
+public void Configure(IApplicationBuilder app) { 
+   app.UseIISPlatformHandler();  
+   app.UseDeveloperExceptionPage(); 
+   
+   app.UseRuntimeInfoPage();  
+   app.UseFileServer();  
+   
+   app.Run(async (context) => { 
+      var msg = Configuration["message"]; 
+      await context.Response.WriteAsync(msg); 
+   }); 
+}
+
+
