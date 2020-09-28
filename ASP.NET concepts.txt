@@ -258,4 +258,73 @@ public void Configure(IApplicationBuilder app) {
    }); 
 }
 
+6. Setup MVC framework in ASP.NET Core
+========================================
+=> To setup MVC framework in our empty project, follow these steps −
 
+Install the Microsoft.AspNet.Mvc package, which gives us access to the assemblies and classes provided by the framework.
+
+Once the package is installed, we need to register all of the services that ASP.NET MVC requires at runtime. We will do this inside the ConfigureServices method.
+
+Finally, we need to add middleware for ASP.NET MVC to receive requests. Essentially this piece of middleware takes an HTTP request and tries to direct that request to a C# class that we will write.
+
+-Adding HomeController.cs in our project:
+using System; 
+using System.Collections.Generic; 
+using System.Linq; 
+using System.Threading.Tasks;  
+
+namespace FirstAppdemo.Controllers { 
+   public class HomeController { 
+      public string Index() { 
+         return "Hello, World! this message is from Home Controller..."; 
+      } 
+   } 
+}
+
+-In addition to adding the NuGet package and the middleware, we also need to add the AddMvc service in the ConfigureServices.
+ Here is the complete implementation of the Startup class:-
+using Microsoft.AspNet.Builder; 
+using Microsoft.AspNet.Hosting; 
+using Microsoft.AspNet.Http; 
+
+using Microsoft.Extensions.DependencyInjection; 
+using Microsoft.Extensions.Configuration;  
+
+namespace FirstAppDemo { 
+   public class Startup { 
+      public Startup() { 
+         var builder = new ConfigurationBuilder() .AddJsonFile("AppSettings.json"); 
+         Configuration = builder.Build(); 
+      }  
+      public IConfiguration Configuration { get; set; }
+      
+      // This method gets called by the runtime. 
+      // Use this method to add services to the container. 
+      // For more information on how to configure your application, 
+      // visit http://go.microsoft.com/fwlink/?LinkID=398940 
+      public void ConfigureServices(IServiceCollection services) { 
+         services.AddMvc(); 
+      }
+      
+      // This method gets called by the runtime.  
+      // Use this method to configure the HTTP request pipeline. 
+      public void Configure(IApplicationBuilder app) { 
+         app.UseIISPlatformHandler();  
+         
+         app.UseDeveloperExceptionPage(); 
+         app.UseRuntimeInfoPage();  
+         
+         app.UseFileServer(); 
+         app.UseMvcWithDefaultRoute();  
+         
+         app.Run(async (context) => { 
+            var msg = Configuration["message"]; 
+            await context.Response.WriteAsync(msg); 
+         });
+      } 
+      
+      // Entry point for the application. 
+      public static void Main(string[] args) => WebApplication.Run<Startup>(args); 
+   }  
+}      
