@@ -1,4 +1,5 @@
 ﻿1. project.json file
+=================
 => This file is using JavaScript object notation to store configuration information and it is this file that is really the heart of a .NET application. Without this file, you would not have an ASP.NET Core project.
 Default code implementation in project.json file is as follows −
 {
@@ -39,6 +40,7 @@ Default code implementation in project.json file is as follows −
 }
 
 2. Startup.cs file
+=================
 => There is a Startup class inside the file and in this class you can configure your application and even configure your configuration sources.
 Default implementation in the Startup.cs file:
 using System; 
@@ -129,3 +131,73 @@ namespace FirstAppDemo {
    } 
 }
 
+3. Middleware
+==============
+=> Middleware in ASP.NET Core controls how our application responds to HTTP requests.
+-It can also control how our application looks when there is an error, and it is a key piece in how we authenticate and authorize a user to perform specific actions.
+-Request delegates are used to build the request pipeline. The request delegates handle each HTTP request.
+-Each piece of middleware in ASP.NET Core is an object, and each piece has a very specific, focused, and limited role.
+-Inside the Configure() method, we will invoke the extension methods on the IApplicationBuilder interface to add middleware.
+
+There are two pieces of middleware in a new empty project by default −
+
+I. IISPlatformHandler
+II. Middleware registered with app.Run
+
+I. IISPlatformHandler allows us to work with Windows authentication. 
+It will look at every incoming request and see if there is any Windows identity information associated with that request and then it calls the next piece of middleware.
+
+II. The next piece of middleware in this case is a piece of middleware registered with app.Run. 
+The Run method allows us to pass in another method, which we can use to process every single response. 
+Run is not something that you will see very often, it is something that we call a terminal piece of middleware.
+
+Middleware that you register with Run will never have the opportunity to call another piece of middleware, all it does is receive a request, and then it has to produce some sort of response.
+You also get access to a Response object and one of the things you can do with a Response object is to write a string.
+If you want to register another piece of middleware after app.Run, that piece of middleware would never be called because, again, Run is a terminal piece of middleware. It will never call into the next piece of middleware.
+
+-Microsoft.aspnet.diagnostics that is actually ASP.NET Core middleware for exception handling, exception display pages, and diagnostics information.
+public void Configure(IApplicationBuilder app) { 
+   app.UseIISPlatformHandler(); 
+   app.UseWelcomePage();  
+   
+   app.Run(async (context) => { 
+      var msg = Configuration["message"]; 
+      await context.Response.WriteAsync(msg); 
+   });  
+}
+
+-Instead of using the Welcome page, we will use the RuntimeInfoPage.
+public void Configure(IApplicationBuilder app) { 
+   app.UseIISPlatformHandler(); 
+   app.UseRuntimeInfoPage();  
+   
+   app.Run(async (context) => { 
+      var msg = Configuration["message"]; 
+      await context.Response.WriteAsync(msg); 
+   });  
+}
+
+This RuntimeInfoPage is a middleware that will only respond to requests that come in for a specific URL.
+ If the incoming request does not match that URL, this piece of middleware just lets the request pass through to the next piece of middleware. 
+The request will pass through the IISPlatformHandler middleware, then go to the UseRuntimeInfoPage middleware. 
+It is not going to create a response, So it will go to our app.Run and display the string.
+
+
+4. Exceptions and Error handling
+===========================
+=> Let us add another piece of middleware, which is the UseDeveloperExceptionPage.
+public void Configure(IApplicationBuilder app) { 
+   app.UseIISPlatformHandler();  
+   app.UseDeveloperExceptionPage(); 
+   app.UseRuntimeInfoPage();  
+   
+   app.Run(async (context) => { 
+      throw new System.Exception("Throw Exception"); 
+      var msg = Configuration["message"]; 
+      await context.Response.WriteAsync(msg); 
+   });  
+}
+
+-This piece of middleware is a little bit different than the other pieces of middleware, the other pieces of middleware are typically looking at the incoming request and making some decision about that request.
+-The UseDeveloperExceptionPage doesn't care so much about the incoming requests as it does what happens later in the pipeline.
+-It is going to just call into the next piece of middleware, but then it is going to wait to see if anything later in the pipeline generates an exception and if there is an exception, this piece of middleware will give you an error page with some additional information about that exception.
