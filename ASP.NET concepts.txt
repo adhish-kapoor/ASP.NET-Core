@@ -1,0 +1,131 @@
+﻿1. project.json file
+=> This file is using JavaScript object notation to store configuration information and it is this file that is really the heart of a .NET application. Without this file, you would not have an ASP.NET Core project.
+Default code implementation in project.json file is as follows −
+{
+   "dependencies": {
+      "Microsoft.NETCore.App": {
+         "version": "1.0.0",
+         "type": "platform"
+      },
+      "Microsoft.AspNetCore.Diagnostics": "1.0.0",
+      "Microsoft.AspNetCore.Server.IISIntegration": "1.0.0",
+      "Microsoft.AspNetCore.Server.Kestrel": "1.0.0",
+      "Microsoft.Extensions.Logging.Console": "1.0.0"
+   },
+   "tools": {
+      "Microsoft.AspNetCore.Server.IISIntegration.Tools": "1.0.0-preview2-final"
+   },
+   "frameworks": {
+      "netcoreapp1.0": {
+         "imports": ["dotnet5.6", "portable-net45+win8"]
+      }
+   },
+   "buildOptions": {
+      "emitEntryPoint": true,
+      "preserveCompilationContext": true
+   },
+   "runtimeOptions": {
+      "configProperties": {
+         "System.GC.Server": true
+      }
+   },
+   "publishOptions": {
+      "include": ["wwwroot", "web.config" ]
+   },
+   "scripts": {
+      "postpublish": [ "dotnet publish-iis --publish-folder %publish:OutputPath%
+         --framework %publish:FullTargetFramework%" ]
+   }
+}
+
+2. Startup.cs file
+=> There is a Startup class inside the file and in this class you can configure your application and even configure your configuration sources.
+Default implementation in the Startup.cs file:
+using System; 
+using System.Collections.Generic; 
+using System.Linq; 
+using System.Threading.Tasks; 
+
+using Microsoft.AspNetCore.Builder; 
+using Microsoft.AspNetCore.Hosting; 
+using Microsoft.AspNetCore.Http; 
+
+using Microsoft.Extensions.DependencyInjection; 
+using Microsoft.Extensions.Logging;  
+
+namespace FirstAppDemo { 
+   public class Startup { 
+      // This method gets called by the runtime.
+      // Use this method to add services to the container. 
+      // For more information on how to configure your application, 
+      // visit http://go.microsoft.com/fwlink/?LinkID=398940 
+      public void ConfigureServices(IServiceCollection services) { 
+      }  
+      
+      // This method gets called by the runtime. Use this method to configure 
+      // the HTTP request pipeline.
+      public void Configure(IApplicationBuilder app, IHostingEnvironment env, 
+         ILoggerFactory loggerFactory) { 
+         loggerFactory.AddConsole();  
+         
+         if (env.IsDevelopment()) { 
+            app.UseDeveloperExceptionPage(); 
+         }  
+         app.Run(async (context) => { 
+            await context.Response.WriteAsync("Hello World!"); 
+         }); 
+      } 
+   } 
+}
+
+The Configure method of the class is where you build your HTTP processing pipeline.
+-This defines how your application responds to requests. 
+-Currently this application can only say Hello World! and if we want the application to behave differently, we will need to change the pipeline around by adding additional code in this Configure method.
+-ConfigureServices() method helps you configure components for your application.
+
+-Right now, we have a hard-coded string for every response — the Hello World! string.
+-Instead of hard-coding the string, we want to load this string from some component that knows the text that we want to display.
+-Let us add the following code in AppSettings.json file.
+{ 
+   "message": "Hello, World! this message is from configuration file..." 
+}
+
+Startup.cs file which will read the above message from the JSON file:-
+using Microsoft.AspNet.Builder; 
+using Microsoft.AspNet.Hosting; 
+using Microsoft.AspNet.Http; 
+
+using Microsoft.Extensions.DependencyInjection; 
+using Microsoft.Extensions.Configuration;  
+
+namespace FirstAppDemo { 
+   public class Startup { 
+      public Startup() { 
+         var builder = new ConfigurationBuilder()   
+            .AddJsonFile("AppSettings.json"); 
+         Configuration = builder.Build(); 
+      }  
+      public IConfiguration Configuration { get; set; }  
+      
+      // This method gets called by the runtime. 
+      // Use this method to add services to the container. 
+      // For more information on how to configure your application, 
+      // visit http://go.microsoft.com/fwlink/?LinkID=398940 
+      public void ConfigureServices(IServiceCollection services) { 
+      }  
+      
+      // This method gets called by the runtime.  
+      // Use this method to configure the HTTP request pipeline. 
+      public void Configure(IApplicationBuilder app) {
+         app.UseIISPlatformHandler();  
+         app.Run(async (context) => { 
+            var msg = Configuration["message"]; 
+            await context.Response.WriteAsync(msg); 
+         });  
+      }  
+        
+      // Entry point for the application. 
+      public static void Main(string[] args) =7gt; WebApplication.Run<Startup>(args); 
+   } 
+}
+
