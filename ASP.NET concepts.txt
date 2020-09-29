@@ -43,6 +43,7 @@ Default code implementation in project.json file is as follows −
 =================
 => There is a Startup class inside the file and in this class you can configure your application and even configure your configuration sources.
 Default implementation in the Startup.cs file:
+
 using System; 
 using System.Collections.Generic; 
 using System.Linq; 
@@ -93,6 +94,7 @@ The Configure method of the class is where you build your HTTP processing pipeli
 }
 
 Startup.cs file which will read the above message from the JSON file:-
+
 using Microsoft.AspNet.Builder; 
 using Microsoft.AspNet.Hosting; 
 using Microsoft.AspNet.Http; 
@@ -156,6 +158,7 @@ You also get access to a Response object and one of the things you can do with a
 If you want to register another piece of middleware after app.Run, that piece of middleware would never be called because, again, Run is a terminal piece of middleware. It will never call into the next piece of middleware.
 
 -Microsoft.aspnet.diagnostics that is actually ASP.NET Core middleware for exception handling, exception display pages, and diagnostics information.
+
 public void Configure(IApplicationBuilder app) { 
    app.UseIISPlatformHandler(); 
    app.UseWelcomePage();  
@@ -213,6 +216,7 @@ By default, that is the only place where we can serve up files directly from the
 Let us install this nuget package and now we should have additional methods that we can use to register middleware inside the Configure method.
 
 UseStaticFiles middle in Configure method as shown in the following program:
+
  public void Configure(IApplicationBuilder app) { 
          app.UseIISPlatformHandler();  
          app.UseDeveloperExceptionPage(); 
@@ -229,6 +233,7 @@ UseStaticFiles middle in Configure method as shown in the following program:
 -You can always give IIS a list of default files to look for. If someone came to the root of a directory or, in this case, the root of the website and if IIS found something named index.html, it would just automatically serve that file.
 Let us now start by making a few changes. First, we need to remove the forced error and then add another piece of middleware, which is UseDefaultFiles. 
 The following is the implementation of the Configure method:
+
 public void Configure(IApplicationBuilder app)  { 
    app.UseIISPlatformHandler();  
    app.UseDeveloperExceptionPage(); 
@@ -245,6 +250,7 @@ public void Configure(IApplicationBuilder app)  {
 
 -If you are going to use UseDefaultFiles and UseStaticFiles, you might also want another piece of middleware that is inside the Microsoft.aspnet.staticfiles, NuGet package, and that is the FileServer middleware. 
 This essentially includes the Default Files and the Static Files in the correct order.
+
 public void Configure(IApplicationBuilder app) { 
    app.UseIISPlatformHandler();  
    app.UseDeveloperExceptionPage(); 
@@ -284,6 +290,7 @@ namespace FirstAppdemo.Controllers {
 
 -In addition to adding the NuGet package and the middleware, we also need to add the AddMvc service in the ConfigureServices.
  Here is the complete implementation of the Startup class:-
+
 using Microsoft.AspNet.Builder; 
 using Microsoft.AspNet.Hosting; 
 using Microsoft.AspNet.Http; 
@@ -327,4 +334,79 @@ namespace FirstAppDemo {
       // Entry point for the application. 
       public static void Main(string[] args) => WebApplication.Run<Startup>(args); 
    }  
-}      
+}
+   
+-Save the Startup.cs file and go to the browser and refresh it. You will now receive a response from our home controller
+
+7. Routing
+============
+=> Routing is the process of directing an HTTP request to a controller.
+-The ASP.NET Core middleware needs a way to determine if a given HTTP request should go to a controller for processing or not.
+
+The MVC middleware will make this decision based on the URL and some configuration information we provide. 
+In this chapter, we will define this configuration information or you can say routing information inside Startup.cs when we add the MVC middleware.
+
+This approach is often referred to as the convention-based routing. 
+The following is a code snippet for conventional routing.
+
+                    routeBuilder.MapRoute("Default", "{controller=Home}/{action=Index}/{id?}");
+
+In this approach, we define templates that tell MVC how to look at a URL and find a controller name and an action name where a controller is a C# class and an action is a public method on that class.
+
+-Instead of using the UseMvcWithDefaultRoute, let us use the UseMvc, and then configure the route at this point using a named method ConfigureRoute. 
+The following is the implementation of the Startup.cs file:-
+
+using Microsoft.AspNet.Builder; 
+using Microsoft.AspNet.Hosting; 
+using Microsoft.AspNet.Http; 
+
+using Microsoft.Extensions.DependencyInjection; 
+using Microsoft.Extensions.Configuration; 
+using Microsoft.AspNet.Routing; 
+using System;  
+
+namespace FirstAppDemo { 
+   public class Startup { 
+      public Startup() { 
+         var builder = new ConfigurationBuilder() .AddJsonFile("AppSettings.json"); 
+         Configuration = builder.Build(); 
+      }  
+      public IConfiguration Configuration { get; set; } 
+      
+      // This method gets called by the runtime. 
+      // Use this method to add services to the container. 
+      // For more information on how to configure your application, 
+      // visit http://go.microsoft.com/fwlink/?LinkID=398940 
+      public void ConfigureServices(IServiceCollection services) { 
+         services.AddMvc(); 
+      }  
+        
+      // This method gets called by the runtime.  
+      // Use this method to configure the HTTP request pipeline. 
+      public void Configure(IApplicationBuilder app) { 
+         app.UseIISPlatformHandler();  
+         
+         app.UseDeveloperExceptionPage(); 
+         app.UseRuntimeInfoPage();  
+         
+         app.UseFileServer(); 
+         app.UseMvc(ConfigureRoute);  
+         
+         app.Run(async (context) => { 
+            var msg = Configuration["message"]; 
+            await context.Response.WriteAsync(msg); 
+         });
+      }  
+      private void ConfigureRoute(IRouteBuilder routeBuilder) { 
+         //Home/Index 
+         routeBuilder.MapRoute("Default", "{controller = Home}/{action = Index}/{id?}");
+      }  
+        
+      // Entry point for the application. 
+      public static void Main(string[] args) => WebApplication.Run<Startup>(args);
+   } 
+}
+
+-Inside the ConfigureRoute method, you can configure your routes; you can see that this method has to take a parameter of type IRouteBuilder. 
+The goal of routing is to describe the rules that ASP.NET Core MVC will use to process an HTTP request and find a controller that can respond to that request.
+
