@@ -1,4 +1,6 @@
-﻿1. project.json file
+﻿// source: "https://www.tutorialspoint.com/asp.net_core/"
+
+1. project.json file
 =================
 => This file is using JavaScript object notation to store configuration information and it is this file that is really the heart of a .NET application. Without this file, you would not have an ASP.NET Core project.
 Default code implementation in project.json file is as follows −
@@ -409,4 +411,43 @@ namespace FirstAppDemo {
 
 -Inside the ConfigureRoute method, you can configure your routes; you can see that this method has to take a parameter of type IRouteBuilder. 
 The goal of routing is to describe the rules that ASP.NET Core MVC will use to process an HTTP request and find a controller that can respond to that request.
+
+-You can have one route that can map requests to different controllers.
+
+-We can tell the routeBuilder that we want to map a new route and its name is “Default” and then provide the most important piece of routing information, which is the template.
+
+-The template is a string, and it is going to describe to ASP.NET Core MVC how to pull apart a URL.
+
+-In the last example, we have added a HomeController, so you can also request any of the following URLs, and they will be directed to the Index action on the HomeController as well.
+
+		http://localhost:49940
+               	 	http://localhost:49940/Home
+ 		http://localhost:49940/Home/Index
+-When a browser requests http://mysite/or http://mysite/Home, it gets back the output from the HomeController’s Index method.
+
+-You can try this as well by changing the URL in the browser. In this example, it is http://localhost:49940/, except that the port which might be different.
+
+-If you append /Home or /Home/Index to the URL and press the Enter button, you will see the same result.
+
+==>Let us create another controller by adding another class and call it AboutController.
+using System; 
+using System.Collections.Generic; 
+using System.Linq; 
+using System.Threading.Tasks;  
+
+namespace FirstAppDemo.Controllers  { 
+   public class AboutController { 
+      public string Phone() { 
+         return "+49-333-3333333"; 
+      }  
+      public string Country() { 
+         return "Germany"; 
+      } 
+   } 
+} 
+
+-If you go to /about, it is again going to fall through the middleware and go to your app.Run middleware and you will see the page with output:
+Here, the ASP.NET Core MVC goes to the AboutController, but does not find an action specified. 
+So it will default to Index and this controller doesn't have an Index method and then the request will go the next piece of middleware.
+
 
