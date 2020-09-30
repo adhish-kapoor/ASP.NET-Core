@@ -563,7 +563,7 @@ namespace FirstAppdemo.Controllers {
    public class HomeController : Controller { 
       public ObjectResult Index() { 
          var employee = new Employee { ID = 1, Name = "Mark Upston"}; 
-         return new ObjectResult(employee);                                                                                                                     // output in browser {"ID":1, "Name":"Mark Upston"}
+         return new ObjectResult(employee);                                                                                                             // output in browser:- {"ID":1, "Name":"Mark Upston"}
       } 
    } 
 }
@@ -577,4 +577,58 @@ This object needs to be represented in the HTTP response.
 -This object should be serialized into XML or JSON or some other format and ultimately, the decision will be made based on the configuration information that you give to the MVC at startup. 
 If you don't configure anything, you just get some defaults, and the default is a JSON response.
 
+
+10. Views
+=============
+=> A controller action might return a view or it might also perform some other type of action such as redirecting to another controller action.
+-With the MVC framework, the most popular method for creating HTML is to use the Razor view engine of ASP.NET MVC.
+
+-To use this view engine, a controller action produces a ViewResult object, and a ViewResult can carry the name of the Razor view that we want to use.
+-The view will be a file on the file system and the ViewResult can also carry along a model object to the view and the view can use this model object when it creates the HTML.
+
+-When the MVC framework sees that your controller action produces a ViewResult, the framework will find the view on the file system, execute the view, which produces HTML, and it is this HTML which the framework sends back to the client.
+
+-Views by default in a C# ASP.NET project are files that have a *.cshtml extension and the views follow a specific convention. By default, all views live in a Views folder in the project.
+-It will go into a Home folder and then look for a file called Index.cshtml − the file name starts with Index because we are in the Index action.
+-The MVC framework will also look in a Shared folder and views that you place inside the Shared folder, you can use them anywhere in the application.
+
+-This View method has a couple of different overloads, and pass the employee model as parameter:
+
+using FirstAppDemo.Models; 
+using Microsoft.AspNet.Mvc; 
+
+using System; 
+using System.Collections.Generic; 
+using System.Linq;
+using System.Threading.Tasks;  
+
+namespace FirstAppdemo.Controllers { 
+   public class HomeController : Controller { 
+      public ViewResult Index() { 
+         var employee = new Employee { ID = 1, Name = "Mark Upston"}; 
+         return View(employee); 
+      } 
+   } 
+} 
+
+-The View method that just takes a model object and that will use the default view, which is Index. 
+Here we just want to pass in that model information and use that model inside Index.cshtml as shown in the following program.
+
+<html xmlns = "http://www.w3.org/1999/xhtml"> 
+   <head> 
+      <title>Home</title> 
+   </head> 
+   
+   <body> 
+      <h1>Welcome!</h1> 
+      
+      <div>                                                                                                                                                   // output in browser:-
+         @Model.Name                                                                                                                                 // Welcome!
+      </div>                                                                                                                                                 // Mark Upston
+   </body> 
+</html>
+
+Razor view contains some built-in members that we can access inside the C# expressions. One of the most important members is the Model.
+When you say @Model, then you will get the model object that you have passed into the view from the controller. 
+So here the @Model.Name will display the employee name inside the view.
 
