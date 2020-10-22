@@ -632,3 +632,240 @@ Razor view contains some built-in members that we can access inside the C# expre
 When you say @Model, then you will get the model object that you have passed into the view from the controller. 
 So here the @Model.Name will display the employee name inside the view.
 
+
+11. Setting EF
+================
+=> Install Entity Framework
+The first step in using the Entity Framework is to install the Entity Framework NuGet package from the NuGet package manager or by editing the project.json file directly.
+-Edit project.json by adding the following two packages:
+                         1. The EntityFramework.Commands package helps us perform tasks with the Entity Framework like creating a database schema based on our C# Entity classes and these tasks are available from a command line tool where the logic lives inside the EntityFramework.Commands package.
+                         2. The EntityFramework.MicrosoftSqlServer
+-In order to use this command line tool, we need to make an additional entry into the commands section of project.json:
+-We have just called it “ef” and that will map to this EntityFramework.Commands package. 
+-We can use this “ef” to get access to some of the logic that is available inside EntityFramework.Commands.
+
+The following is the implementation of the project.json file:
+
+{ 
+   "version": "1.0.0-*", 
+   "compilationOptions": { 
+      "emitEntryPoint": true 
+   },  
+   
+   "dependencies": { 
+      "Microsoft.AspNet.Mvc": "6.0.0-rc1-final", 
+      "Microsoft.AspNet.Diagnostics": "1.0.0-rc1-final", 
+      "Microsoft.AspNet.IISPlatformHandler": "1.0.0-rc1-final", 
+      "Microsoft.AspNet.Server.Kestrel": "1.0.0-rc1-final", 
+      "Microsoft.AspNet.StaticFiles": "1.0.0-rc1-final", 
+      "EntityFramework.MicrosoftSqlServer": "7.0.0-rc1-final", 
+      "EntityFramework.Commands": "7.0.0-rc1-final" 
+   }
+   
+   "commands": { 
+      "web": "Microsoft.AspNet.Server.Kestrel" 
+   },  
+  
+   "frameworks": { 
+      "dnx451": { }, 
+      "dnxcore50": { } 
+   },  
+  
+   "exclude": [ 
+      "wwwroot", 
+      "node_modules" 
+   ], 
+  
+   "publishExclude": [ 
+      "**.user", 
+      "**.vspscc" 
+   ] 
+}
+
+
+12. DBContext
+=================
+=> The Entity Framework enables you to query, insert, update, and delete data, using Common Language Runtime (CLR) objects known as entities. 
+     The Entity Framework maps the entities and relationships that are defined in your model to a database. It also provides facilities to −
+
+		1. Materialize data returned from the database as entity objects.
+
+		2. Track changes that were made to the objects.
+
+		3. Handle concurrency.
+
+		4. Propagate object changes back to the database.
+
+		5. Bind objects to controls.
+
+-The primary class that is responsible for interacting with data as objects is the DbContext. 
+-Logically, a DBContext maps to a specific database that has a schema that the DBContext understands. And on that DBContext class, you can create properties that are type DbSet<T>. 
+-The generic type parameter T will be a type of entity like Employee is an entity in the FirstAppDemo application.
+
+-Here, we need to add a new class in Models folder and call it FirstAppDempDbContext. Even though this class is not a model in itself, it does put together all our Models so that we can use them with the database.
+-Inherit your context class from the DbContext class which is in Miscrosoft.Data.Entity namespace. 
+-Now implement a DbSet of Employee on that class.
+
+-Each DbSet will map to a table in the database. If you have a property DbSet of employee, and the name of that property is Employees, the Entity Framework will by default look for an Employees table inside your database.
+
+using FirstAppDemo.Models; 
+using Microsoft.Data.Entity; 
+
+using System; 
+using System.Collections.Generic; 
+using System.Linq; 
+using System.Threading.Tasks;  
+
+namespace OdeToFood.Models { 
+   public class FirstAppDemoDbContext : DbContext { 
+      public DbSet<Employee> Employees { get; set; } 
+   } 
+} 
+
+- Let us now insert this class directly into controllers, and the controllers could then use FirstAppDemoDbContext to query the database. 
+We will simplify all these by adding a new class to the HomeController class in which we implement methods to Add employee and Get employee as shown in the following program.
+
+using Microsoft.AspNet.Mvc; 
+
+using FirstAppDemo.ViewModels; 
+using FirstAppDemo.Services; 
+using FirstAppDemo.Entities; 
+using FirstAppDemo.Models; 
+
+using System.Collections.Generic; 
+using System.Linq;  
+
+namespace FirstAppDemo.Controllers { 
+   public class HomeController : Controller { 
+      public ViewResult Index() { 
+         var model = new HomePageViewModel(); 
+         
+         using (var context = new FirstAppDemoDbContext()) { 
+            SQLEmployeeData sqlData = new SQLEmployeeData(context); 
+               model.Employees = sqlData.GetAll(); 
+         }  
+         return View(model); 
+      } 
+   }  
+   public class SQLEmployeeData { 
+      private FirstAppDemoDbContext _context { get; set; } 
+      public SQLEmployeeData(FirstAppDemoDbContext context) { 
+         _context = context;
+      } 
+      public void Add(Employee emp) { 
+         _context.Add(emp); 
+         _context.SaveChanges(); 
+      } 
+      public Employee Get(int ID) { 
+         return _context.Employees.FirstOrDefault(e => e.Id == ID); 
+      } 
+      public IEnumerable<Employee> GetAll() { 
+         return _context.Employees.ToList<Employee>(); 
+      } 
+   } 
+   public class HomePageViewModel { 
+      public IEnumerable<Employee> Employees { get; set; } 
+   } 
+}  
+
+- In the above SQLEmployeeData class, you can see that we have defined the Add method which will add a new employee object to the context and then it will save the changes. 
+- In the Get method, it will return an employee based on the ID. Whereas, in the GetAll method it will return the list of all the employees in the database.
+
+****Configuring the Entity Framework Services****
+****				   ****
+To have a usable Entity Framework DBContext, we need to change the configuration of the application. We will need to add a connection string so that our DBContext knows which server to go to and which database to query.
+
+		1. We will put the connection string in a JSON configuration file.
+
+		2. We also need to add some more services during the ConfigureServices method of the Startup class.
+
+		3. The Entity Framework, just like ASP.NET and the MVC framework, the Entity Framework relies on dependency injection, and for injection to work, the runtime needs to know about the various services that the Entity Framework uses.
+
+		4. There is an easy configuration API that will add all the default services that we need.
+
+-  AppSettings.json file and add the connections string as shown in the following program.
+
+{ 
+   "message": "Hello, World! this message is from configuration file...", 
+   "database": { 
+      "connection": "Data Source=(localdb)\\mssqllocaldb;Initial Catalog=FirstAppDemo" 
+   } 
+}
+
+-- Startup class where we need to add some additional services for the Entity Framework to work properly. Specifically, there are three things that we need to do that are related to the Entity Framework −
+
+		1. We need to add the core Entity Framework services.
+
+		2. We also need to add the SQL Server-related Entity Framework services.
+
+		3. We need to tell the Entity Framework about our DBContext.
+
+All this can be done through methods that are available as extension methods on IServiceCollection as shown in the following program.
+
+public void ConfigureServices(IServiceCollection services) { 
+   services.AddMvc(); 
+   services.AddEntityFramework() 
+      .AddSqlServer() 
+      .AddDbContext<FirstAppDemoDbContext>
+   
+   (option => option.UseSqlServer(Configuration["database:connection"])); 
+} 
+
+		4. The first method is the AddEntityFramework. This will add the core Entity Framework services, the default services.
+
+		5. But since the Entity Framework is now designed to work with different sorts of databases, including non-relational databases, we need to make a second call to tell the Entity Framework to add its default SQL Server-related services.
+
+		6. Then we also need to tell the Entity Framework about my DBContext class so it can construct instances of that class appropriately and we can do that through a third method, the AddDbContext method.
+
+		7. This one takes a generic type parameter where we specify the type of the DBContext derived class, the FirstAppDemoDbContext.
+
+		8. Inside the AddDbContext, we need to describe the options for our DBContext.
+
+		9. This can be done by a lambda expression; it is an action where we receive an option parameter and the Entity Framework can support the different databases. All we need to do is, tell the Entity Framework that this particular DBContext is going to UseSqlServer.
+
+		10. This method requires a parameter which is the connectionString to use.
+
+The following is the complete implementation of the Startup.cs file.
+
+using Microsoft.AspNet.Mvc; 
+using FirstAppDemo.ViewModels; 
+using FirstAppDemo.Services; 
+using FirstAppDemo.Entities; 
+using FirstAppDemo.Models; 
+
+using System.Collections.Generic; 
+using System.Linq;  
+
+namespace FirstAppDemo.Controllers { 
+   public class HomeController : Controller { 
+      public ViewResult Index() { 
+         var employee = new Employee { Id = 1, Name = "Mark Upston1" }; 
+         using (var context = new 
+         
+         FirstAppDemoDbContext()) { 
+            SQLEmployeeData sqlData = new SQLEmployeeData(context); 
+            sqlData.Add(employee); 
+         } 
+         
+         //var employee = new Employee { ID = 1, Name = "Mark Upston" }; 
+         return View(employee); 
+      } 
+   }  
+   public class SQLEmployeeData { 
+      private FirstAppDemoDbContext _context { get; set; }  
+      public SQLEmployeeData(FirstAppDemoDbContext context) { 
+         _context = context; 
+      }  
+      public void Add(Employee emp) { 
+         _context.Add(emp); 
+         _context.SaveChanges(); 
+      } 
+      public Employee Get(int ID) { 
+         return _context.Employees.FirstOrDefault(e => e.Id == ID); 
+      } 
+      public IEnumerable<Employee> GetAll() { 
+         return _context.Employees.ToList<Employee>(); 
+      } 
+   } 
+} 
+
