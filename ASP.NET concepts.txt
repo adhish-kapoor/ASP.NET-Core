@@ -869,3 +869,141 @@ namespace FirstAppDemo.Controllers {
    } 
 } 
 
+Now we need to set up the database.
+One way to get a database set up is to use the Entity Framework to create the database and this is a two-step process −
+
+***The First Step***
+
+		1. Adding migration code to our project.
+
+		2. The migration code is C# code. This can be executed to create a database in a database schema.
+
+		3. The Entity Framework can generate this migration code for us.
+
+		4. The Entity Framework looks at the database and at our models and figures out what the schema changes are required to make the application work.
+
+		5. So when we add additional models or make changes to the existing models, like the Employee class, we can continue to add migrations to our project and keep our database schema in sync.
+
+***The Second Step***
+
+		1. Here, we need to explicitly apply those migrations to update a database.
+
+		2. Both of these tasks can be achieved by using some easy commands from a console window.
+
+		3. We have made project.json.
+
+		4. That is why we have made project.json to add a command where “ef” maps to EntityFramework.Commands.
+
+ ---Let us open the Developer Command Prompt for Visual Studio to run the commands that we need to add the migrations and apply the migrations. The easiest way to do this is to go to the application root directory.
+- If you are in the folder that has the project.json file, then you are in the correct folder.
+1. Here, we need to execute a command known as dnvm. This is the .NET version manager which will tell the system what runtime we want to use.
+
+Let us now use the following command.
+
+dnvm list 
+
+2. We need to tell the dnvm that we want to use the specific runtimes. This will give us access to the dotnet command or the dnx command that we want to execute.
+
+Execute the following command.
+
+dnvm use1.0.0-rc1-update1 -p
+
+3. dnvm will set up our path and the environment variables to include a bin directory that will give us access to this dnx utility. 
+Let us execute the dnx ef command.
+
+This is the .NET execution environment, using dnx, we can call the commands that we have listed in our project.json file.
+ Executing these commands is generally very easy. 
+When you type dnx ef, you will get a help screen. You don't have to remember all the options. 
+You can see the available commands from the Entity Framework Commands and there are three of them.
+
+First, we need to add migration to execute the following command.
+
+dnx ef migrations add v1
+
+The Entity Framework will find that context and look at the models that are inside. 
+It will know that there is no previous migration and so it is going to generate the first migration. 
+Here, v1 is the version 1 of the database. It will create a new folder in Solution Explorer and generate code.
+
+A migration is essentially a C# code that is used to generate SQL commands to modify the schema in a SQL database.
+
+using System; 
+using System.Collections.Generic; 
+
+using Microsoft.Data.Entity.Migrations; 
+using Microsoft.Data.Entity.Metadata;  
+
+namespace FirstAppDemo.Migrations { 
+   public partial class v1 : Migration { 
+      protected override void Up(MigrationBuilder migrationBuilder) { 
+         
+         migrationBuilder.CreateTable(name: "Employee", columns: table => new { 
+            Id = table.Column<int>(nullable: false)    
+               .Annotation("SqlServer:ValueGenerationStrategy",
+               SqlServerValueGenerationStrategy.IdentityColumn),                        
+               Name = table.Column<string>(nullable: true) 
+         }, 
+         constraints: table => { 
+            table.PrimaryKey("PK_Employee", x => x.Id); 
+         }); 
+      }  
+      protected override void Down(MigrationBuilder migrationBuilder) { 
+         migrationBuilder.DropTable("Employee"); 
+      } 
+   } 
+}
+
+You can see it will create a table called Employees.
+
+		1. This table should have two columns — an ID, and a Name column.
+
+		2. By convention, when the Entity Framework sees that you have a property called Id, it will make that property or, rather, make that column a primary key in the database.
+
+		3. Here, we will use the SQL Server. By default, the Entity Framework will make that an IdentityColumn, which means the SQL Server will generate the IDs for us.
+
+- Let us apply these IDs to a database by typing the “dnx ef database update” command.
+You can see that the command has applied migration.
+
+- Let us now go to the SQL Server Object Explorer, and refresh the databases, you can now see we have a FirstAppDemo database.
+
+You can also see our Employee table and we can even look at the columns for that table in which the ID column is the primary key.
+Let us right-click on the dbo.Employee table and select View Data.
+
+Before we run the application, let us add some data. When we launch the application, we should see some data from the database. 
+Let us just add a couple of rows of data here.									
+				Id	Name
+				1	Adhish
+				2	Adi
+				3	AK
+
+- Let us now update the index.cshtml file. It shows all the data in tabular form
+
+@model FirstAppDemo.Controllers.HomePageViewModel 
+<html xmlns="http://www.w3.org/1999/xhtml"> 
+   <head> 
+       <title>Home</title> 
+   </head> 
+
+   <body> 
+      <h1>Welcome!</h1> 
+      
+      <table> 
+         @foreach (var employee in Model.Employees) { 
+            <tr> 
+               <td>   
+                  @Html.ActionLink(employee.Id.ToString(), "Details", new 							1	Adhish
+													2	Adi
+													3	AK
+                     { id = employee.Id }) 
+               </td> 
+               <td>@employee.Name</td> 
+            </tr> 
+         } 
+      </table> 
+   </body> 
+</html>
+
+
+13. Razor Layout Views
+========================
+=> 
+						
