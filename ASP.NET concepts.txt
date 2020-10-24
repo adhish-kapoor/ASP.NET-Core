@@ -1005,5 +1005,18 @@ Let us just add a couple of rows of data here.
 
 13. Razor Layout Views
 ========================
-=> 
+=> Layout View
+
+		1. A Layout view is a Razor view with a *.cshtml extension. You have a choice to name a Layout view the way you want.
+
+		2. This is a common name for a Layout view, and the leading underscore is not required. That is just a convention that many developers follow to identify a view that is not a view; you render this as a view result from a controller action.
+
+		3. It is a special kind of view, but once we have a Layout view, we can set up our controller views like the Index view for the home page.
 						
+		4. We can set up this view to render inside the Layout view at a specific location.
+
+		5. This Layout view approach means that the Index.cshtml doesn't need to know anything about the logo or the top level navigation.
+
+		6. The Index view only needs to render the specific content for the model the controller action gives this view and the Layout view takes care of everything else.
+
+
