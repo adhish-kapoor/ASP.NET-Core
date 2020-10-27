@@ -1,0 +1,81 @@
+﻿# Understanding the Run, Use and Map Method
+
+=> app.Run()
+This middleware component may expose Run[Middleware] methods that are executed at the end of the pipeline. 
+Generally, this acts as a terminal middleware and is added at the end of the request pipeline, as it cannot call the next middleware.
+
+=> app.Use()
+This is used to configure multiple middleware. 
+Unlike app.Run(), We can include the next parameter into it, which calls the next request delegate in the pipeline. 
+We can also short-circuit (terminate) the pipeline by not calling the next parameter.
+
+            	 //Middlewares added to request pipeline
+           	 //async used because ASP.NET CORE works on asynchronous pattern
+           	 //next() is used to call next middleware in the pipeline
+            			app.Use(async (context, next) =>
+           			{
+                			await context.Response.WriteAsync("Hello from first middleware");
+
+                			await next();
+
+               	 			await context.Response.WriteAsync("Hello from first middleware response");
+            			});
+
+            			app.Use(async (context, next) =>
+            			{
+                			await context.Response.WriteAsync("Hello from second middleware");
+
+                			await next();
+
+                			await context.Response.WriteAsync("Hello from second middleware response");
+            			});
+
+            			app.Use(async (context, next) =>
+            			{
+                			await context.Response.WriteAsync("Hello from third middleware");
+            			});
+
+
+=> app.Map()
+These extensions are used as a convention for branching the pipeline. 
+The map branches the request pipeline based on matches of the given request path. If the request path starts with the given path, the branch is executed.
+
+			public void Configure(IApplicationBuilder app, IWebHostEnvironment env)  
+			{  
+    				app.Map("/m1", HandleMapOne);  
+    				app.Map("/m2", appMap => {  
+        					appMap.Run(async context =>  
+       			 		{  
+           				 		await context.Response.WriteAsync("Hello from 2nd app.Map()");  
+        					});  
+    			       	});  
+    				app.Run(async (context) =>  
+    				{  
+        					await context.Response.WriteAsync("Hello from app.Run()");  
+    				});  
+			}  
+			private static void HandleMapOne(IApplicationBuilder app)  
+			{  
+    				app.Run(async context =>  
+    				{  
+        					await context.Response.WriteAsync("Hello from 1st app.Map()");  
+    				});   
+			}  
+
+The following table shows the requests and responses from localhost using the above code.
+Request				Response
+https://localhost:44362/		Hello from app.Run()
+https://localhost:44362/m1		Hello from 1st app.Map()
+https://localhost:44362/m1/xyz		Hello from 1st app.Map()
+https://localhost:44362/m2		Hello from 2nd app.Map()
+https://localhost:44362/m500		Hello from app.Run()
+
+
+In summary, every middleware component in ASP.NET Core:
+		1. Has access to both the incoming requests and the outgoing response.
+		2. May simply pass the request to the next piece of middleware in the pipeline.
+		3. May perform some processing logic and then pass that request to the next middleware for further processing.
+		4. May terminate(short-circuit) the request pipeline whenever required.
+		5. Is executed in the order they are added to the pipeline.
+
+
