@@ -130,7 +130,7 @@ It describes the command to run, whether the browser should be opened, which env
 
 public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
    {
-            if (env.IsDevelopment())					// if the environment is Development; IsStaging(), IsProduction()			
+            if (env.IsDevelopment())					// if the environment is Development; IsStaging(), IsProduction() and IsEnvironment()		
             {
                 app.UseDeveloperExceptionPage();
             }
@@ -141,3 +141,57 @@ public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
    }
 
 
+# Setup MVC in .Net Core application using AddControllersWithViews method
+===============================================================
+
+=>    // This method gets called by the runtime. Use this method to add services to the container.
+        public void ConfigureServices(IServiceCollection services)
+        {
+            services.AddControllersWithViews();
+        }
+
+=> 	app.UseEndpoints(endpoints =>
+               {
+                endpoints.MapDefaultControllerRoute();			// will map to Home/Index
+                });
+
+
+# AddMVC() vs AddControllersWithViews() vs AddControllers() vs AddRazorPages()
+================================================================
+
+=> 	Web API - AddControllers()
+	Model View Controller - AddControllersWithViews()
+	Razor pages - AddRazorPages()
+	Else - AddMVC()
+
+AddMVC()				AddControllersWithViews()				AddControllers()				AddRazorPages()
+==========================================================================================================================================
+Controllers				Controllers					Controllers				Controllers
+
+Model Binding				Model Binding					Model Binding				Model Binding
+
+API Explorer				API Explorer					API Explorer				------------------
+
+Authorization				Authorization					Authorization				Authorization
+
+CORS					CORS						CORS					-------------------
+
+Validations				Validations					Validations				Validations
+
+FormatterMapping				FormatterMapping					FormatterMapping				-------------------
+
+Antiforgery				Antiforgery					-----------------------				Antiforgery
+
+Temp Data				Temp Data					-----------------------				Temp Data
+
+Views					Views						-----------------------				Views
+
+Pages					-----------------					----------------------				Pages
+
+Tag Helpers				Tag Helpers					----------------------				Tag Helpers
+
+Memory Cache				Memory Cache					---------------------				Memory Cache
+
+
+# 
+									
