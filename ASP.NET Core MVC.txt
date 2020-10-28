@@ -64,7 +64,7 @@ The map branches the request pipeline based on matches of the given request path
 			}  
 
 The following table shows the requests and responses from localhost using the above code.
-Request				Response
+Request					Response
 https://localhost:44362/		Hello from app.Run()
 https://localhost:44362/m1		Hello from 1st app.Map()
 https://localhost:44362/m1/xyz		Hello from 1st app.Map()
@@ -89,7 +89,8 @@ It describes the command to run, whether the browser should be opened, which env
 
 	// profiles section has 2 servers : IIS express and Kestrel
 	                // HTTP access logs aren’t collected in Kestrel. For some, this doesn’t matter. But for others that use these logs as a debugging tool (Or pump them to something like Azure Diagnostics etc), this could be an issue.
-		// Multiple apps on the same port is not supported in Kestrel simply by design. So when hosting on IIS, IIS itself listens on port 80 and “binds” websites to specific URLs. Kestrel on the other hand binds to an IP (Still with a website URL if you like), but you can’t then start another .NET Core Kestrel instance on the same port.  It’s a one to one mapping.
+		// Multiple apps on the same port is not supported in Kestrel simply by design. So when hosting on IIS, IIS itself listens on port 80 and “binds” websites to specific URLs. 
+		// Kestrel on the other hand binds to an IP (Still with a website URL if you like), but you can’t then start another .NET Core Kestrel instance on the same port.  It’s a one to one mapping.
 		// Windows Authentication does not exist on Kestrel as it’s cross platform (more on that later).
 		// IIS has a direct FTP integration setup if you deploy via this method (Kestrel does not)
 		// Request Filtering (e.g. Blocking access to certain file extensions, folders, verbs etc) is much more fully featured in IIS (Although some of this can be “coded” in Kestrel in some cases).
