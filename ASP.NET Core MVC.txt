@@ -179,7 +179,7 @@ CORS					CORS						CORS					-------------------
 
 Validations				Validations					Validations				Validations
 
-FormatterMapping				FormatterMapping					FormatterMapping				-------------------
+FormatterMapping			FormatterMapping					FormatterMapping				-------------------
 
 Antiforgery				Antiforgery					-----------------------				Antiforgery
 
@@ -194,5 +194,147 @@ Tag Helpers				Tag Helpers					----------------------				Tag Helpers
 Memory Cache				Memory Cache					---------------------				Memory Cache
 
 
+# Controllers
+===============
+
+=>	public class BookController : Controller
+    	{
+        		public string GetAllBooks()
+        		{
+            			return "All books";				// http://localhost:51062/book/getallbooks
+        		}
+
+        		public string GetBook(int id)
+        		{
+            			return $"book with id = {id}";			// http://localhost:51062/book/getbook/4
+        		}						// book with id = 4
+  
+	
+		public string SearchBooks(string bookName, string authorName)
+        		{
+            			return $"Book with name = {bookName} and author = {authorName}";		// http://localhost:51062/book/Searchbooks?bookName=MVC&authorName=Adhish
+        		}									// Book with name = MVC and author = Adhish
+	}	
+
+
+# View Discovery
+=================
+
+=> 	When we return view from action method then View Discovery takes place.
+	View Discovery determines which view file will be used for this action method.
+
+
+	0. An unhandled exception occurred while processing the request.              					// http://localhost:51062/home/contactus
+		InvalidOperationException: The view 'ContactUs' was not found. The following locations were searched:
+		/Views/Home/ContactUs.cshtml
+		/Views/Shared/ContactUs.cshtml
+
+	0. Common views must be placed in Shared folder.
+
+	0. return View();					// name of view is equal to name of action method
+	0. return View("viewName"); 				// name of view is not equal to name of action method
+
+	==> Return View from other location
+	 	0. Full path of view (extension of view file is required)			// return View("TempView/AdhishTemp.cshtml");
+		0. Relative path (extension of view file is not required)			// return View("../../TempView/AdhishTemp");
+
+	0. Razor ViewEngine is responsible for view discovery.
+
+
+# Razor ViewEngine
+==================
+
+=> 	0. View Engine converts all C# code to HTML from a .cshtml file.
+	0. View Engine is used to get/set the default path location for view, shared folder etc.
+
+	0. Razor ViewEngine is used to write C# logic on view page
+	0. Razor syntax is a standard for Razor ViewEngine (@ symbol is used).
+
+	0. @DateTime.Now.ToString("yyyy-MM-dd")					// will output current date
+	0.Escape Sequence is used to print @ on our view 				// @twitterAccount (<h1>Twitter Account - @@Adhish_Kapoor</h1>)
+
+
+# Conditional statements in Razor ViewEngine
+====================================
+
+=> 	0. Ternary operator
+		@{
+			int a=10;
+			int b=0;
+		}
+
+	<h1>Ternary - @(a==10 ? b=10 : b=5)</h1>					// Ternary - 10
+	<h2>Value of b = @b</h2>							// Value of b = 10
+
+# for and forEach loop
+=========================
+
+=> 		@for(int i=0;i<10;i++)
+		{
+			<h1>Hello @i</h1>
+		}
+	--------------------------------------------------------------------------------
+		@{
+			var list = new List<int>() {1, 2, 3, 4, 5};
+		}
+		@foreach(var i in list)
+		{
+			<h1>@i</h1>	
+		}
+
+
+# Static files
+=================
+
+=> 		0. Images, CSS files, JS files etc.
+		0. All static files are placed inside wwwroot folder (also known as Content Root folder)
+		0. app.UseStaticFiles(); is used for the static files in Startup.cs
+		
+		0. 	app.UseStaticFiles(new StaticFileOptions()								
+			{
+				FileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), "MyStaticFiles")),		// to get Static files from custom folder other than wwwroot folder
+				RequestPath = "/MyStaticFiles"
+			});
+
+
+# Install and use client side library(jQuery and Bootstrap)
+===============================================
+
+=> 		0. right click on project -> Add -> client side library
+		0. defaultProvider : cdnjs in dropdown and added library jQuery
+		0. library manager is used to change the version of client side libraries easily.
+
+
+# Razor file compilation
+======================
+
+=> 		0. By default, Razor file is compiled at 2 times:
+			1. Build
+			2. Publish
+
+		0. To resolve the problem of building solution again and again to see the changes in view file, we can Enable run time compilation of razor file.
+		0. Steps to enable run time compilation of razor file:
+			1. Install a new package : Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation
+			2. Make changes in Startup.cs (configureServices) : services.AddRazorPages().AddRazorRuntimeCompilation();
+		0. Runtime Compilation Conditionally : Add preprocessor directive for run time compilation to happen in Debug mode.
+			#if DEBUG
+				services.AddRazorPages().AddRazorRuntimeCompilation();
+			#endif			
+
+
+# Layout in ASP.NET Core
+=========================
+
+=> 		0. Layout is a .cshtml file used to provide common structure to other views.
+		0. @RenderBody() method is used to provide space for other view.
+		0. Only one RenderBody() method inside one layout file.
+		
+		0. Benefits of Layout : 
+			1. Less code
+			2. Centralized code for static files
+			3. No duplicate code
+			4. Easy to update
+			5. Good architecture
+
+
 # 
-									
