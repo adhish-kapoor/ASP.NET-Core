@@ -382,9 +382,93 @@ Memory Cache				Memory Cache					---------------------				Memory Cache
 =>		0. ViewBag is used to pass data from action method to view and we can display this data on view.
 		0. This type of data binding is known as loosely binding.
 		0. We can pass any type of data in ViewBag.						// ViewBag.PropertyName = Data;
-		0. ViewBag use dynamic property.
-		0. ViewBag is a server side code and used with @ in a view.					// @ViewBag.Property
+		0. ViewBag use dynamic property and works on dynamic type.
+		0. ViewBag is a server side code and used with @ in a view.				// @ViewBag.Property
 
-		0. 
+		0. Pass anonymous data to view using ViewBag
+		===============================================
+		In HomeController.cs :
+		
+		 public IActionResult Index()
+        	{
+            		dynamic data = new ExpandoObject();			// ExpandoObject comes under System.Dynamic namespace
+            		data.Id = 1;
+            		data.Name = "Adhish";
 
+            		ViewBag.Data = data;
+            		return View();
+        	}
 
+		In Index.cshtml :
+		
+		@{
+    			dynamic data = ViewBag.Data;				
+		}
+
+			@data.Id						// 1
+			@data.Name						// Adhish
+		
+		0. Pass object data to view using ViewBag
+		============================================
+		In HomeController.cs :
+		
+		public IActionResult Index()
+        	{
+			ViewBag.Type = new BookModel { Id = 2, Author = "This is Author" };
+			return View();
+		}
+		
+		In Index.cshtml :
+		
+		Id = @ViewBag.Type.Id						// Id = 2
+		Name = @ViewBag.Type.Author					// Name = This is Author
+		
+		
+# ViewData
+=============
+
+=> 		0. ViewData is used to pass data from action method to view and we can display this data on view.
+		0. This type of data binding is known as loosely binding.
+		0. We can pass any type of data in ViewData.
+		0. Create a new key in ViewData and then assign some data to it.			// ViewData["PropertyName"] = Data;
+		0. ViewData works on ViewDataDictionaryType.
+		0. ViewData is a server side code and used with @ in a view.				// @ViewData["Property"]
+		0. While sending object in ViewData then before using this data on view we need to 
+		   cast it to its data type.
+		0. ViewData can also be used to pass data from view to its layout view.
+		
+		0. Pass object data to view using ViewBag
+		============================================
+		In HomeController.cs :
+		
+		public IActionResult Index()
+        	{
+			ViewData["book"] = new BookModel { Id = 2, Author = "This is Author" };
+			return View();
+		}
+		
+		In Index.cshtml :
+		
+		@{
+   	 		var bookInfo = ViewData["Book"] as BookStore.Models.BookModel;			// Casting to BookModel data type to make bookInfo of this type 
+		}											// instead of type TModel (Generic type)
+
+			@ViewData["Book"]					// BookStore.Models.BookModel
+			@bookInfo.Id						// 2
+			@bookInfo.Author					// This is Author
+
+		0. Pass data from view to its layout view
+		============================================
+		In GetBook.cshtml :
+		
+		@using BookStore.Models
+		@model BookModel
+		@{
+    			ViewData["Title"] = "Book details of " + Model.Title;
+		}
+		
+		In _Layout.cshtml :
+		
+		<title>@ViewData["Title"] - Book Store</title>			// Book details of C# - Book Store
+		
+		
