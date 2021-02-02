@@ -497,17 +497,17 @@ The following is a list of different kind of action results and their behavior.
 
 		Name	                	Behavior
 	=======================================================
-		ContentResult		Returns a string
+		ContentResult		        Returns a string
 		FileContentResult		Returns file content
-		FilePathResult		Returns file content
+		FilePathResult			Returns file content
 		FileStreamResult		Returns file content.
-		EmptyResult		Returns nothing
+		EmptyResult			Returns nothing
 		JavaScriptResult		Returns script for execution
-		JsonResult		Returns JSON formatted data
+		JsonResult			Returns JSON formatted data
 		RedirectToResult		Redirects to the specified URL
-		HttpUnauthorizedResult	Returns 403 HTTP Status code
-		RedirectToRouteResult	Redirect to different action/ different controller action
-		ViewResult		Received as a response for view engine
+		HttpUnauthorizedResult		Returns 403 HTTP Status code
+		RedirectToRouteResult		Redirect to different action/ different controller action
+		ViewResult			Received as a response for view engine
 		PartialViewResult		Received as a response for view engine
 
 Example 1
@@ -775,15 +775,15 @@ namespace FirstAppDemo.Controllers {
 ****				   ****
 To have a usable Entity Framework DBContext, we need to change the configuration of the application. We will need to add a connection string so that our DBContext knows which server to go to and which database to query.
 
-		1. We will put the connection string in a JSON configuration file.
+1. We will put the connection string in a JSON configuration file.
 
-		2. We also need to add some more services during the ConfigureServices method of the Startup class.
+2. We also need to add some more services during the ConfigureServices method of the Startup class.
 
-		3. The Entity Framework, just like ASP.NET and the MVC framework, the Entity Framework relies on dependency injection, and for injection to work, the runtime needs to know about the various services that the Entity Framework uses.
+3. The Entity Framework, just like ASP.NET and the MVC framework, the Entity Framework relies on dependency injection, and for injection to work, the runtime needs to know about the various services that the Entity Framework uses.
 
-		4. There is an easy configuration API that will add all the default services that we need.
+4. There is an easy configuration API that will add all the default services that we need.
 
--  AppSettings.json file and add the connections string as shown in the following program.
+=> AppSettings.json file and add the connections string as shown in the following program.
 
 { 
    "message": "Hello, World! this message is from configuration file...", 
@@ -792,7 +792,7 @@ To have a usable Entity Framework DBContext, we need to change the configuration
    } 
 }
 
--- Startup class where we need to add some additional services for the Entity Framework to work properly. Specifically, there are three things that we need to do that are related to the Entity Framework −
+=> Startup class where we need to add some additional services for the Entity Framework to work properly. Specifically, there are three things that we need to do that are related to the Entity Framework −
 
 		1. We need to add the core Entity Framework services.
 
@@ -1007,16 +1007,103 @@ Let us just add a couple of rows of data here.
 ========================
 => Layout View
 
-		1. A Layout view is a Razor view with a *.cshtml extension. You have a choice to name a Layout view the way you want.
+1. A Layout view is a Razor view with a *.cshtml extension. 
+You have a choice to name a Layout view the way you want.
 
-		2. This is a common name for a Layout view, and the leading underscore is not required. That is just a convention that many developers follow to identify a view that is not a view; you render this as a view result from a controller action.
+2. This is a common name for a Layout view, and the leading underscore is not required.
+That is just a convention that many developers follow to identify a view that is not a view; you render this as a view result from a controller action.
 
-		3. It is a special kind of view, but once we have a Layout view, we can set up our controller views like the Index view for the home page.
+3. It is a special kind of view, but once we have a Layout view, we can set up our controller views like the Index view for the home page.
 						
-		4. We can set up this view to render inside the Layout view at a specific location.
+4. We can set up this view to render inside the Layout view at a specific location.
 
-		5. This Layout view approach means that the Index.cshtml doesn't need to know anything about the logo or the top level navigation.
+5. This Layout view approach means that the Index.cshtml doesn't need to know anything about the logo or the top level navigation.
 
-		6. The Index view only needs to render the specific content for the model the controller action gives this view and the Layout view takes care of everything else.
+6. The Index view only needs to render the specific content for the model the controller action gives this view and the Layout view takes care of everything else.
+
+
+14. Host
+================
+On startup, an ASP.NET Core app builds a host. The host encapsulates all of the app's resources, such as:
+
+1. An HTTP server implementation
+2. Middleware components
+3. Logging
+4. Dependency injection (DI) services
+5. Configuration
+
+There are two different hosts:
+1. .NET Generic Host
+2. ASP.NET Core Web Host
+
+The .NET Generic Host is recommended. 
+The ASP.NET Core Web Host is available only for backwards compatibility.
+
+The following example creates a .NET Generic Host:
+public class Program
+{
+    public static void Main(string[] args)
+    {
+        CreateHostBuilder(args).Build().Run();
+    }
+
+    public static IHostBuilder CreateHostBuilder(string[] args) =>
+        Host.CreateDefaultBuilder(args)
+            .ConfigureWebHostDefaults(webBuilder =>
+            {
+                webBuilder.UseStartup<Startup>();
+            });
+}
+
+The CreateDefaultBuilder and ConfigureWebHostDefaults methods configure a host with a set of default options, such as:
+
+1. Use Kestrel as the web server and enable IIS integration.
+2. Load configuration from appsettings.json, appsettings.{Environment Name}.json, environment variables, command line arguments, and other configuration sources.
+3. Send logging output to the console and debug providers.
+
+
+15. Servers
+===============
+An ASP.NET Core app uses an HTTP server implementation to listen for HTTP requests. The server surfaces requests to the app as a set of request features composed into an HttpContext.
+
+ASP.NET Core provides the following server implementations:
+
+1. Kestrel is a cross-platform web server. Kestrel is often run in a reverse proxy configuration using IIS. 
+In ASP.NET Core 2.0 or later, Kestrel can be run as a public-facing edge server exposed directly to the Internet.
+2. IIS HTTP Server is a server for Windows that uses IIS. With this server, the ASP.NET Core app and IIS run in the same process.
+3. HTTP.sys is a server for Windows that isn't used with IIS.
+
+
+16. Content root
+====================
+The content root is the base path for:
+
+1. The executable hosting the app (.exe).
+2. Compiled assemblies that make up the app (.dll).
+3. Content files used by the app, such as:
+	Razor files (.cshtml, .razor)
+	Configuration files (.json, .xml)
+	Data files (.db)
+4. The Web root, typically the wwwroot folder.
+
+During development, the content root defaults to the project's root directory. This directory is also the base path for both the app's content files and the Web root. 
+
+
+17. Web root
+====================
+The web root is the base path for public, static resource files, such as:
+
+1. Stylesheets (.css)
+2. JavaScript (.js)
+3. Images (.png, .jpg)
+By default, static files are served only from the web root directory and its sub-directories. The web root path defaults to {content root}/wwwroot.
+
+Prevent publishing files in wwwroot with the <Content> project item in the project file. 
+The following example prevents publishing content in wwwroot/local and its sub-directories:
+<ItemGroup>
+  <Content Update="wwwroot\local\**\*.*" CopyToPublishDirectory="Never" />
+</ItemGroup>
+
+In Razor .cshtml files, tilde-slash (~/) points to the web root. A path beginning with ~/ is referred to as a virtual path.
 
 
