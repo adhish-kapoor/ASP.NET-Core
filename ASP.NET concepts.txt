@@ -1107,3 +1107,5 @@ The following example prevents publishing content in wwwroot/local and its sub-d
 In Razor .cshtml files, tilde-slash (~/) points to the web root. A path beginning with ~/ is referred to as a virtual path.
 
 
+18. Logging in ASP.NET Core
+==============================
