@@ -1109,3 +1109,113 @@ In Razor .cshtml files, tilde-slash (~/) points to the web root. A path beginnin
 
 18. Logging in ASP.NET Core
 ==============================
+The logging API in Microsoft.Extensions.Logging namespace works with one or more built-in or third party logging providers.
+When you create the ASP.NET Core MVC web application in Visual Studio 2017 (or later), it automatically includes the NuGet package for Microsoft.Extensions.Logging 
+and the following logging providers under the Microsoft.AspNetCore.App NuGet package.
+So, we don't have to install it manually.
+
+1. Microsoft.Extensions.Logging.Console
+2. Microsoft.Extensions.Logging.Debug
+3. Microsoft.Extensions.Logging.EventSource
+4. Microsoft.Extensions.Logging.TraceSource
+
+=> Add Logging Providers
+
+public class Program
+{
+    public static void Main(string[] args)
+    {
+        CreateWebHostBuilder(args).Build().Run();
+    }
+
+    public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
+        WebHost.CreateDefaultBuilder(args)
+               .UseStartup<Startup>();
+}
+
+Look at the source code of the WebHost.CreateDefaultBuilder():
+.ConfigureLogging((hostingContext, logging) =>
+    {
+        logging.AddConfiguration(hostingContext.Configuration.GetSection("Logging"));
+        logging.AddConsole();
+        logging.AddDebug();
+        logging.AddEventSourceLogger();
+    }).
+    
+ => Create Logs in the Controller
+ We can use ILogger or ILoggerFactory anywhere in an application using ASP.NET Core DI (Dependency Injection). 
+ Consider the following example of HomeController:
+ 
+ namespace AspDotNetCoreMvcApp.Controllers
+{
+    public class HomeController : Controller
+    {
+        private readonly ILogger _logger;
+
+        public HomeController(ILogger<HomeController> logger){
+            _logger = logger;
+        }
+        
+        public IActionResult Index()
+        {
+            _logger.LogInformation("Log message in the Index() method");
+
+            return View();
+        }
+
+        public IActionResult About()
+        {
+            _logger.LogInformation("Log message in the About() method");
+            
+            return View();
+        }
+    }
+}
+
+In the above example, the ILogger<HomeController> parameter is included in the constructor. ASP.NET Core DI will pass the ILogger instance, which can be used to log in the Index() and About() action methods.
+
+The same can be achieved by passing ILoggerFactory in the constructor.
+public class HomeController : Controller
+{
+    private readonly ILogger _logger;
+
+    public HomeController(ILoggerFactory logFactory) 
+    {
+        _logger = logFactory.CreateLogger<HomeController>();
+    }
+        
+    public IActionResult Index()
+    {
+        _logger.LogInformation("Log message in the Index() method");
+
+        return View();
+    }
+
+    public IActionResult About()
+    {
+        _logger.LogInformation("Log message in the About() method");
+            
+        return View();
+    }
+}
+
+ILogger<T> is equivalent to calling CreateLogger with the fully qualified type name of T.
+
+=> Log level
+LogLevel	Value		Method			Description
+Trace		0		LogTrace		Contain the most detailed messages. 	
+							These messages may contain sensitive app data. These messages are disabled by default and should not be enabled in 								production.
+Debug		1		LogDebug		For debugging and development. Use with caution in production due to the high volume.
+Information	2		LogInformation		Tracks the general flow of the app. May have long-term value.
+Warning		3		LogWarning		For abnormal or unexpected events. Typically includes errors or conditions that don't cause the app to fail.
+Error		4		LogError		For errors and exceptions that cannot be handled. These messages indicate a failure in the current operation or request,
+							not an app-wide  failure.
+Critical	5		LogCritical		For failures that require immediate attention. Examples: data loss scenarios, out of disk space.
+None		6					Specifies that a logging category should not write any messages.
+
+In the previous table, the LogLevel is listed from lowest to highest severity.
+The Log method's first parameter, LogLevel, indicates the severity of the log. Rather than calling Log(LogLevel, ...), most developers call the Log{LogLevel} extension methods. The Log{LogLevel} extension methods call the Log method and specify the LogLevel.
+
+=> Default log level
+If the default log level is not set, the default log level value is Information.
+
