@@ -1,0 +1,180 @@
+1. Migrate from ASP.NET Core 1.x to 2.0
+===============================================
+
+Existing ASP.NET Core 1.x applications are based off of version-specific project templates. 
+As the ASP.NET Core framework evolves, so do the project templates and the starter code contained within them. 
+In addition to updating the ASP.NET Core framework, you need to update the code for your application.
+
+2. Update Target Framework Moniker (TFM)
+===============================================
+
+Projects targeting .NET Core should use the TFM of a version greater than or equal to .NET Core 2.0. 
+Search for the <TargetFramework> node in the .csproj file, and replace its inner text with netcoreapp2.0:
+
+<TargetFramework>netcoreapp2.0</TargetFramework>
+
+Projects targeting .NET Framework should use the TFM of a version greater than or equal to .NET Framework 4.6.1. 
+Search for the <TargetFramework> node in the .csproj file, and replace its inner text with net461:
+
+<TargetFramework>net461</TargetFramework>
+
+NOTE:
+=> .NET Core 2.0 offers a much larger surface area than .NET Core 1.x. 
+If you're targeting .NET Framework solely because of missing APIs in .NET Core 1.x, targeting .NET Core 2.0 is likely to work.
+
+3. Update .NET Core SDK version in global.json
+===================================================
+
+If your solution relies upon a global.json file to target a specific .NET Core SDK version, 
+update its version property to use the 2.0 version installed on your machine:
+
+{
+  "sdk": {
+    "version": "2.0.0"
+  }
+}
+
+4. Update package references
+===================================
+
+The .csproj file in a 1.x project lists each NuGet package used by the project.
+
+In an ASP.NET Core 2.0 project targeting .NET Core 2.0, a single metapackage reference in the .csproj file replaces the collection of packages:
+<ItemGroup>
+  <PackageReference Include="Microsoft.AspNetCore.All" Version="2.0.9" />
+</ItemGroup>
+
+All the features of ASP.NET Core 2.0 and Entity Framework Core 2.0 are included in the metapackage.
+
+ASP.NET Core 2.0 projects targeting .NET Framework should continue to reference individual NuGet packages. 
+Update the Version attribute of each <PackageReference /> node to 2.0.0.
+
+For example, here's the list of <PackageReference /> nodes used in a typical ASP.NET Core 2.0 project targeting .NET Framework:
+<ItemGroup>
+  <PackageReference Include="Microsoft.AspNetCore" Version="2.0.0" />
+  <PackageReference Include="Microsoft.AspNetCore.Authentication.Cookies" Version="2.0.0" />
+  <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="2.0.0" />
+  <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="2.0.0" />
+  <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.0.0" />
+  <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.ViewCompilation" Version="2.0.0" PrivateAssets="All" />
+  <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="2.0.0" />
+  <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="2.0.0" PrivateAssets="All" />
+  <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="2.0.0" />
+  <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="2.0.0" PrivateAssets="All" />
+  <PackageReference Include="Microsoft.VisualStudio.Web.BrowserLink" Version="2.0.0" />
+  <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.0.0" PrivateAssets="All" />
+</ItemGroup>
+
+5. Update .NET Core CLI tools
+======================================
+
+In the .csproj file, update the Version attribute of each <DotNetCliToolReference /> node to 2.0.0.
+
+For example, here's the list of CLI tools used in a typical ASP.NET Core 2.0 project targeting .NET Core 2.0:
+<ItemGroup>
+  <DotNetCliToolReference Include="Microsoft.EntityFrameworkCore.Tools.DotNet" Version="2.0.0" />
+  <DotNetCliToolReference Include="Microsoft.Extensions.SecretManager.Tools" Version="2.0.0" />
+  <DotNetCliToolReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Tools" Version="2.0.0" />
+</ItemGroup>
+
+6. Rename Package Target Fallback property
+============================================
+
+The .csproj file of a 1.x project used a PackageTargetFallback node and variable:
+<PackageTargetFallback>$(PackageTargetFallback);portable-net45+win8+wp8+wpa81;</PackageTargetFallback>
+
+Rename both the node and variable to AssetTargetFallback:
+<AssetTargetFallback>$(AssetTargetFallback);portable-net45+win8+wp8+wpa81;</AssetTargetFallback>
+
+7. Update Main method in Program.cs
+===========================================
+
+In 1.x projects, the Main method of Program.cs looked like this:
+using System.IO;
+using Microsoft.AspNetCore.Hosting;
+
+namespace AspNetCoreDotNetCore1App
+{
+    public class Program
+    {
+        public static void Main(string[] args)
+        {
+            var host = new WebHostBuilder()
+                .UseKestrel()
+                .UseContentRoot(Directory.GetCurrentDirectory())
+                .UseIISIntegration()
+                .UseStartup<Startup>()
+                .UseApplicationInsights()
+                .Build();
+
+            host.Run();
+        }
+    }
+}
+
+In 2.0 projects, the Main method of Program.cs has been simplified:
+using Microsoft.AspNetCore;
+using Microsoft.AspNetCore.Hosting;
+
+namespace AspNetCoreDotNetCore2App
+{
+    public class Program
+    {
+        public static void Main(string[] args)
+        {
+            BuildWebHost(args).Run();
+        }
+
+        public static IWebHost BuildWebHost(string[] args) =>
+            WebHost.CreateDefaultBuilder(args)
+                .UseStartup<Startup>()
+                .Build();
+    }
+}
+
+
+8. Here is what’s new in ASP.NET Core 2.0
+===============================================
+
+=> ASP.NET Core 2.0 implements .NET Standard 2.0. 
+This allows you to use missing .NET Framework pieces with ASP.NET Core like Datasets, Binary Serialization, Reflection and many other pieces.
+
+=>  Restoring packages is now part of the dotnet new command. (dotnet restore was used earlier)
+
+=> ASP.NET Core 2.0 application now references a single meta package Microsoft.AspNetCore.All to include all ASP.NET Core packages with the product version. 
+This makes .csproj file short and clean.
+
+=> ASP.NET Core 2.0 introduces Razor Pages. Razor Pages are simple pages or views without controllers associated to it. 
+Razor pages are included with Microsoft.AspNetCore.Mvc package. 
+They work on the convention and needs to be placed in Pages folder and the extension is .cshtml.
+
+=> Authentication has undergone some major changes for 2.0. 
+All Auth middleware are services now and there is now only a single authentication middleware is needed which is app.UseAuthentication(). 
+In .NET Core 1.1, to enable cookie authentication,
+
+public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
+{
+    app.UseCookieAuthentication(new CookieAuthenticationOptions()
+     {
+         AuthenticationScheme = "MyCookieMiddlewareInstance",
+         LoginPath = new PathString("/Account/Unauthorized/"),
+         AccessDeniedPath = new PathString("/Account/Forbidden/"),
+         AutomaticAuthenticate = true,
+         AutomaticChallenge = true
+     });
+     app.UseMvc();
+}
+
+The options w.r.t. to cookie authentication is specified in Configure() method. This is changed in 2.0. Now, it is done like this:
+
+public void ConfigureServices(IServiceCollection services)
+{
+    services.AddCookieAuthentication(o => o.LoginPath = "/api/login");
+}
+
+public void Configure(IApplicationBuilder app)
+{
+    app.UseAuthentication();
+    app.UseMvc();
+}
+
