@@ -472,3 +472,26 @@ Memory Cache				Memory Cache					---------------------				Memory Cache
 		<title>@ViewData["Title"] - Book Store</title>			// Book details of C# - Book Store
 		
 		
+# Strongly typed views
+========================
+Razor views where we get Model intellisense.
+
+# ViewModel
+===============
+ViewModel is a wrapper class which is wrapped around multiple models and this ViewModel represents the data 
+what your view needs.
+
+public class CustomerViewModel
+{
+public Customer customer {get; set;}
+public List<Product> products {get; set;}
+}
+
+# Session management
+========================
+Maintaining states between HTTP requests.
+3 ways to do Session management:
+1. Session variable
+2. ViewBag/ViewData
+3. TempData
+
