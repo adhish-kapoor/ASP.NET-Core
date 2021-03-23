@@ -1219,3 +1219,30 @@ The Log method's first parameter, LogLevel, indicates the severity of the log. R
 => Default log level
 If the default log level is not set, the default log level value is Information.
 
+19. Different ways of doing DI | Scoped vs Transient vs Singleton
+========================================================================
+
+public HomeController(Customer obj, Customer obj1)
+{
+}
+
+1. services.AddScoped<Customer>() in ConfigureServices method of StartUp class
+Addscoped instantiates object once per request made to server.
+
+=> In one request customer obj will be instantiated only once and the same instance will be injected in both dependency injection objects.
+So for every request a new instance is created and the same instance is injected again and again for every dependency object in the constructor.
+
+2. services.AddTransient<Customer>()
+AddTransient instantiates every singletime service is injected.
+
+=> In one request 2 instances will be created instance1 and instance2 and will be injected in the dependency injection objects (instance1 to obj and instance2 to obj1).
+So for every request new instances are created and injected to DI objects.
+
+3. services.AddSingleton<Customer>()
+AddSingleton instantiates once in an application lifetime.
+
+=> In one request same instance (global instance) is created and is injected to DI objects.
+So Singleton is like a global object which is shared across all the DI objects.
+
+
+
