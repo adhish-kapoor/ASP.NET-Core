@@ -384,7 +384,8 @@ Memory Cache				Memory Cache					---------------------				Memory Cache
 		0. We can pass any type of data in ViewBag.						// ViewBag.PropertyName = Data;
 		0. ViewBag use dynamic property and works on dynamic type.
 		0. ViewBag is a server side code and used with @ in a view.				// @ViewBag.Property
-
+		0. ViewBag doesn't have typecasting and null checks
+		
 		0. Pass anonymous data to view using ViewBag
 		===============================================
 		In HomeController.cs :
@@ -471,6 +472,10 @@ Memory Cache				Memory Cache					---------------------				Memory Cache
 		
 		<title>@ViewData["Title"] - Book Store</title>			// Book details of C# - Book Store
 		
+# TempData
+=================
+		0. TempData is also a dictionary object that stays for the time of an HTTP Request. 
+		So, Tempdata can be used to maintain data between redirects, i.e., from one controller to the other controller
 		
 # Strongly typed views
 ========================
