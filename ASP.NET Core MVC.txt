@@ -733,9 +733,11 @@ A. We make use of the MapPageRoute() which is of the RouteCollection class for a
 Whereas, the MapRoute() method is used for adding routes to an MVC application.
 
 19. What is the use of ActionFilters in MVC?
-ActionFilters are used for executing the logic while MVC action is executed. 
+
+A. ActionFilters are used for executing the logic while MVC action is executed. 
 Furthermore, action filters permit the implementation of pre and post-processing logic and action methods.
 
+-- Filters in MVC
 Filters can be applied to an action method or controller in a declarative or programmatic way. 
 Declarative means by applying a filter attribute to an action method or controller class and 
 programmatic means by implementing a corresponding interface.
@@ -760,6 +762,45 @@ Performs some operation if there is an unhandled exception thrown during the exe
 [HandleError]	
 IExceptionFilter
 
-let's take an example of a built-in Exception filter. Exception filter executes when an unhandled exception occurs in your application.
-The HandleErrorAttribute class is a built-in exception filter class that renders the Error.cshtml by default when an unhandled exception occurs.
+=> Let's take an example of a built-in Exception filter. Exception filter executes when an unhandled exception occurs in your application.
+The HandleErrorAttribute class is a built-in exception filter class that renders the Error.cshtml (~/Views/Shared/Error.cshtml) by default when an unhandled exception occurs.
+
+The following example demonstrates the use of [HandleError] attribute on the controller class.
+[HandleError]
+public class HomeController : Controller
+{
+    public ActionResult Index()
+    {
+        //throw exception for demo
+        throw new Exception("This is unhandled exception");
+            
+        return View();
+    }
+
+    public ActionResult About()
+    {
+        return View();
+    }
+
+    public ActionResult Contact()
+    {
+        return View();
+    }        
+}
+
+Above, the [HandleError] attribute applied to the HomeController. 
+So, an error page Error.cshtml will be displayed if any action method of the HomeController throws an unhandled exception. 
+Please note that unhandled exceptions are exceptions that are not handled by the try-catch blocks.
+Filters applied to the controller will automatically be applied to all the action methods of a controller.
+
+NOTE: Please make sure that the CustomError mode is on in System.web section of web.config.
+<customErrors mode="On" /> 
+
+20. What are the different properties of MVC routes?
+
+A. MVC routes are accountable for governing which controller method will be executed for a given URL. Thus, the URL comprises of the following properties:
+Route Name: It is the URL pattern which is used for mapping the handler.
+URL Pattern: It is another property containing the literal values as well as variable placeholders (known as URL parameters).
+Defaults: This is the default parameter value assigned at the time of parameter creation.
+Constraints: These are used for applying against the URL pattern for more narrowly defining the URL matching it.
 
