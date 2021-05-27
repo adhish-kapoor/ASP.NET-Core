@@ -804,3 +804,49 @@ URL Pattern: It is another property containing the literal values as well as var
 Defaults: This is the default parameter value assigned at the time of parameter creation.
 Constraints: These are used for applying against the URL pattern for more narrowly defining the URL matching it.
 
+21. Mention & explain the different approaches you will use to implement Ajax in MVC?
+
+A. There are 2 different approaches to implement Ajax in MVC. These are:
+jQuery: This is a library written using JavaScript for simplifying HTML-DOM manipulation.
+AJAX libraries: Asynchronous JavaScript and XML libraries are set of web development libraries written using JavaScript and are used to perform common operations.
+
+22. Define Output Caching in MVC?
+
+A. Output Caching is an approach used for improving the performance of an MVC application. 
+It is used for enabling its users to cache the data sent back by the controller method 
+so that the data used earlier does not get generated each time while invoking the same controller method. 
+It has advantages to use Output Caching as it cuts down database server round trips, minimizes server round trips as well as reduces the network traffic.
+
+23. View vs PartialView
+
+A. VIEW											PARTIAL VIEW
+The view is not as lightweight as that of Partial view					Partial view, as the name suggests, is lightweight than View
+The view has its own layout page							The partial view does not have its own layout page
+The Viewstart page is rendered just before rendering any view				Partial view is designed particularly for rendering within the view
+The view can have markup tags of HTML such as HTML, head, body, title, meta, etc.	The partial view does not contain any markup
+
+24. Define Scaffolding in MVC?
+
+A. Scaffolding can be defined as an ASP.NET’s code-generation framework used in web applications. 
+Scaffolding is used in developing MVC applications when anyone wants to rapidly enhance the code that intermingles with the application’s data model. 
+Scaffolding can also lower down the quantity of time for developing a standard data operation in the application.
+
+25. The order in which filters are used –
+First, the authorization filters are executed
+Followed by the Action filters
+Then, the response filters are executed
+Finally, the exception filters
+
+26. Explain briefly the 2 approaches of adding constraints to an MVC route?
+
+A. For adding constraints to an MVC route, the 2 different approaches are:
+By making use of regular expressions
+By making use of objects that implement the “IRouteConstraint” interface.
+
+27. Explain briefly the use of ViewModel in MVC?
+
+A. ViewModel can be defined as a plain class having different properties. 
+It is used for binding a view that is strongly-typed. 
+ViewModel consists of various validation rules for defining the properties of practicing data annotation.
+
+28. 
