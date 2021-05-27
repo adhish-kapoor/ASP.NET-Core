@@ -500,3 +500,266 @@ Maintaining states between HTTP requests.
 2. ViewBag/ViewData
 3. TempData
 
+# Questions
+=======================
+1. [ASP.NET Core MVC] You have a CategoriesController and an Add action with the next signature looking like this:
+[HttpPost]
+public IActionResult Add(NewCategoryModel model)
+You have to explicitly specify that the parameter model should be extracted from a request body. How would you achieve that?
+
+A. Add [FromBody] like so:
+[HttpPost]
+public IActionResult Add([FromBody]NewCategoryModel model)
+
+2. [ASP.NET MVC 5] Is that OK to place a log.txt file in the ~/bin/ folder of an ASP.NET MVC application? Will it affect the app?
+
+A. It is not a good idea to put log files in the bin folder of an application, because every change will cause a pool restart. 
+You will face performance problems and unless you already know this, it will be difficult to track down the reason.
+
+3. [ASP.NET MVC 5] What basic folders do we have in an ASP.NET project without Areas? 
+What are they for? What subfolders do they have (if applicable)? Which folders are publicly accessible?
+
+A. App_Data: can be used to store some application’s data.
+   App_Start: contains configuration classes: RouteConfig, BundleConfig, etc.
+   Content: is a publicly accessible folder for static files, such as CSS files, images, etc., but not scripts.
+   Controllers: is a default folder for application controllers.
+   Scripts: is a publicly accessible folder for JavaScript files.
+   Views: The folder contains a folder for every controller, plus a special folder Shared for views used by multiple views/controllers. For example, if we have a controller               called HomeController, we will have a Home subfolder here with all the views related to HomeController.
+   
+4. [ASP.NET Core MVC] What basic folders do we have in an ASP.NET Core project using the MVC template without Areas? 
+What are they for? What subfolders do they have (if applicable)? Which folders are publicly accessible? 
+
+A. wwwroot: The root folder of a site, publicly accessible, contains subfolders for static files (CSS, images, JS, etc.).
+   Controllers: A default folder for application controllers
+   Views: The folder contains a folder for every controller, plus a special folder Shared for views used by multiple views/controllers. For example, if we have a controller               called HomeController, we will have a Home subfolder here with all the views related to HomeController.
+   
+5. You have a controller CategoriesController with actions ShowAll, Add, and Delete. 
+You’ve got several requirements related to application URLs: What is the easiest way to achieve that?
+
+URL	                Action	        Method
+~/v2/Categories	        ShowAll	        GET
+~/v2/Categories/Add	Add	        POST
+~/v2/Categories/Delete	Delete	        DELETE
+
+A. In ASP.NET MVC 5:
+
+Use a custom route and attributes on action methods to restrict HTTP methods.
+
+Step 1: We need to add a custom route to RoutesCollection (usually in ~/App_Start/RoutesConfig) before the default one:
+
+routes.MapRoute(
+                name: "v2",
+                url: "v2/{controller}/{action}",
+                defaults: new { action = "ShowAll" }
+               );
+Step 2: To restrict HTTP methods for actions, we need to mark CategoriesController’s methods with the attributes 
+[HttpGet], [HttpPost], and [HttpDelete] according to our requirements.
+
+In ASP.NET Core MVC:
+
+There are three ways to fulfill these requirements.
+
+Option #1: Add a custom global route and attributes on action methods to restrict HTTP methods.
+Step 1: We need to add a custom global route (usually in Startup.cs) before the default one:
+
+routes.MapRoute(
+                name: "v2",
+                template: "v2/{controller}/{action=ShowAll}"
+               );
+Step 2: To restrict HTTP methods for actions, we need to mark CategoriesController’s methods with the attributes 
+[HttpGet], [HttpPost], and [HttpDelete] according to our requirements.
+
+This is a good approach for applications without specific requirements for a URL scheme.
+
+Option #2: Configure routes at the action level.
+Steps:
+
+Mark actions with attributes to restrict allowed HTTP methods.
+Specify route templates via attributes:
+        [HttpGet]
+        [Route("v2/[controller]")]
+        public IActionResult ShowAll()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [Route("v2/[controller]/[action]")]
+        public IActionResult Add()
+        {
+            return View();
+        }
+This is a good decision if you have specific requirements for a URL scheme, e.g., a REST API.
+
+Option #3: Configure a base route on a controller level and relative routes on an action level.
+Steps:
+
+Specify a basic controller route template with an attribute.
+Mark actions with attributes to restrict allowed HTTP methods.
+Specify relative route templates via attributes:
+    [Route("v2/[controller]")]
+    public class CategoriesController : Controller
+    {
+        [HttpGet]
+        [Route("")]
+        public IActionResult ShowAll()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [Route("[action]")]
+        public IActionResult Add()
+        {
+            return View();
+        }
+	
+This is also a good decision if you have specific requirements for a URL scheme. 
+In fact, it can be a better option than the previous one if you always have a constant string or a controller name as a prefix for your routes.
+
+6. By default, you have the master page in your application ~/Views/Shared/_Layout.cshtml and you’ve created a new one ~/Views/Shared/_LayoutV2.cshtml.
+How do you apply the new master page to the whole application, except pages with a non-default layout?
+
+A. In both ASP.NET MVC 5 and ASP.NET Core MVC, you have to adjust the file ~/Views/_ViewStart.cshtml.
+
+In ASP.NET MVC 5:
+
+@{
+    Layout = "~/Views/Shared/_LayoutV2.cshtml";
+}
+
+In ASP.NET Core MVC:
+
+@{
+    Layout = "_LayoutV2";
+}
+
+7. What is the recommended approach for ASP.NET MVC to globally intercept exceptions?
+What other functionality can be implemented with the approach?
+
+A. You can create a custom exception filter to intercept and log unhandled exceptions.
+
+In ASP.NET MVC 5:
+
+To intercept exceptions globally, the filter should be registered in GlobalFilterCollection (usually in ~/App_Start/FilterConfig).
+
+Authentication, authorization, custom action filters, logging, and action result transformation can be done with the same approach.
+
+In ASP.NET Core MVC:
+
+To intercept exceptions globally, the filter should be registered in Startup.ConfigureServices() as shown below:
+services.AddMvc(options => { options.Filters.Add(new ApiExceptionFilter()); });
+
+Authorization, custom action filters (sync and async), and action result transformation can be done with the same approach.
+
+8. What are the advantages of using IoC containers in an application?
+
+A. The main advantages are:
+
+The lifetime of every object can be managed externally.
+Objects are not responsible for creating services and providing dependencies.
+Changes to a dependency list won’t affect an object using the service.
+The same instance can be shared by several unrelated consumers.
+Services provide contracts, so implementation can be changed in the future.
+
+9. What is the most appropriate lifetime for a database connection/ORM context in an ASP.NET MVC application?
+
+A. The lifetime should be the same as the request, because usually requests don’t live very long. 
+Where it’s possible to wrap the whole request in one transaction, this can help comply with ACID principles.
+
+10. [ASP.NET MVC 5] You have an ASP.NET MVC application where you need to use ASP.NET session state and support running across several servers. 
+What additional configuration can you perform without writing custom code?
+
+A. In the Web.config file (in the root folder of your application) set sessionState to StateServer for shared in-memory storage or SQLServer for shared durable storage.
+
+11. [ASP.NET Core MVC] You have an ASP.NET Core MVC application where you need to use some cache solution and support running across several servers.
+What are your steps?
+
+A. There are several answers, because ASP.NET Core is a new platform and supports several approaches. 
+The candidate has to stress that, in the project, we need to use some kind of distributed cache—for example, Redis. 
+Also, Microsoft provides several packages to help with this. 
+In the case of Redis, Microsoft.Extensions.Caching.Redis provides the middleware and implements IDistributedCache to provide a standardized way to work with it.
+
+12. What is the difference between asynchronous and synchronous actions? When would you use asynchronous actions?
+
+A. Asynchronous actions won’t block the executing thread if it waits for an I/O operation. 
+Using asynchronous actions can increase the throughput of a system if you use such a pattern for I/O operations, but it won’t help with CPU-bound operations.
+
+13. [ASP.NET MVC 5] You have a page with Razor C# syntax. What is the difference between these two methods, RenderAction and RenderPartial? What will they do?
+
+@{
+    Html.RenderAction("Add");
+    Html.RenderPartial("Add");
+}
+
+A. RenderAction will call an action method of the current controller and render a result inline. 
+In contrast, RenderPartial will render the specified view inline without calling any action method.
+
+14. Explain the MVC Application life cycle.
+
+A. The web applications usually have 2 primary execution steps. These are:
+Understanding the request
+Sending an appropriate response based on the type of request
+
+The same thing can be related to MVC applications also whose life cycle has 2 foremost phases:
+for creating a request object
+for sending the response to any browser
+
+15.  What are the various steps to create the request object?
+
+A. In order to create a request object, we have to go through 4 different steps.
+Step 1: Fill the route
+Step 2: Fetch the route
+Step 3: Create a request context
+Step 4: Create a controller instance
+
+16. Explain in brief the role of different MVC components?
+
+A. The different MVC components have the following roles -
+Presentation: This component takes care of the visual representation of a particular abstraction in the application.
+Control: This component takes care of the consistency and uniformity between the abstraction within the system along with their presentation to the user. 
+It is also responsible for communicating with all other controls within the MVC system.
+Abstraction: This component deals with the functionality of the business domain within the application.
+
+17. What do you mean by partial view of MVC?
+
+A. A partial view can be defined as a portion of HTML that is carefully injected into an existing DOM. 
+Partial views are commonly implemented for componentizing Razor views, making them simpler to build and update. 
+Controller methods can also directly return the partial views.
+
+18. Explain in brief the difference between adding routes in a webform application & an MVC application?
+
+A. We make use of the MapPageRoute() which is of the RouteCollection class for adding routes in a webform application. 
+Whereas, the MapRoute() method is used for adding routes to an MVC application.
+
+19. What is the use of ActionFilters in MVC?
+ActionFilters are used for executing the logic while MVC action is executed. 
+Furthermore, action filters permit the implementation of pre and post-processing logic and action methods.
+
+Filters can be applied to an action method or controller in a declarative or programmatic way. 
+Declarative means by applying a filter attribute to an action method or controller class and 
+programmatic means by implementing a corresponding interface.
+
+Filter Type, Description, Built-in filter, Interface
+1. Authorization filters		
+Performs authentication and authorizes before executing an action method.	
+[Authorize], [RequireHttps]	
+IAuthorizationFilter
+
+2. Action filters	
+Performs some operation before and after an action method executes.
+IActionFilter
+
+3. Result filters	
+Performs some operation before or after the execution of the view.	
+[OutputCache]	
+IResultFilter
+
+4. Exception filters	
+Performs some operation if there is an unhandled exception thrown during the execution of the ASP.NET MVC pipeline.	
+[HandleError]	
+IExceptionFilter
+
+let's take an example of a built-in Exception filter. Exception filter executes when an unhandled exception occurs in your application.
+The HandleErrorAttribute class is a built-in exception filter class that renders the Error.cshtml by default when an unhandled exception occurs.
+
