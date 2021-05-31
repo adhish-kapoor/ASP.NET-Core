@@ -1244,5 +1244,84 @@ AddSingleton instantiates once in an application lifetime.
 => In one request same instance (global instance) is created and is injected to DI objects.
 So Singleton is like a global object which is shared across all the DI objects.
 
+====
+20. Describe authentication, types, differences?
 
+A. Windows, Forms and Passport authentication in ASP.NET 
+
+• Windows authentication: - In this methodology ASP.NET web pages will use local windows users and groups to authenticate and authorize resources.
+
+• Forms Authentication: - This is a cookie based authentication where username and password are stored on client machines as cookie files or they are sent through URL for every request. Form-based authentication presents the user with an HTML-based Web page that prompts the user for credentials.
+
+• Passport authentication :- Passport authentication is based on the passport website provided
+by the Microsoft .So when user logins with credentials it will be reached to the passport website ( i.e. hotmail,devhood,windows live etc) where authentication will happen. If Authentication is successful it will return a token to your website.
+
+• Anonymous access: - If you do not want any kind of authentication then you will go for Anonymous access.
+
+=> Forms authentication using ‘web.config’ as a data store
+Step 1:- The first thing we need to do is make an entry in to the web.config file with authentication mode as forms as shown below. 
+We need to also provide the following things :-
+
+• LoginUrl :- This property helps us to provide the start page of authentication and authorization.
+
+• defaultUrl :- Once the user is validated he will be redirected to this value , currently its “Home.aspx”.
+
+• Cookieless :- As said previously forms authentication uses cookies. There are four ways by which you can change this behavior :-
+
+oAutoDetect: - Depending on your browser configuration it can either use cookies or pass the authentication information encrypted via browser URL.
+
+o UseCookies: - You would like the forms authentication mechanism to create cookie when the authentication is successful.
+
+o UseURI :- You would like to pass data encrypted via the browser URL query string.
+
+o UseDeviceProfile :- This is the default value. When you set this value the forms authentication mechanism will do look up at
+ “C:\WINDOWS\Microsoft.NET\Framework\v2.0.50727\CONFIG\Browsers” to see if the browser support cookies and then decides whether it should use cookies or should not. In other words it does not check on actual runtime if the browser has cookies enabled.
+
+• Credentials: - In the credentials tag we have also some users with name and password. As said previously we will first use forms authentication with username’s stored in web.config files.
+ 
+<authentication mode="Forms">
+<forms loginUrl="Login.aspx" timeout="30" defaultUrl="Home.aspx" cookieless="AutoDetect">
+<credentials passwordFormat="Clear">
+<user name="Shiv" password="pass@123"/>
+<user name="Raju" password="pass@123"/>
+</credentials>
+</forms>
+</authentication>
+
+Step 2:-Once you have set the “forms” tag values , it’s time to ensure that anonymous users are not able to browse your site. You can set the same by using the authorization tag as shown in the below code snippet.
+
+<authorization>
+<deny users="?"/>
+</authorization>
+
+Step 3:- We also need to define which user have access to which page. In this project we have created two pages “Admin.aspx” and “User.aspx”. 
+“Admin.aspx” is accessible to only user “Shiv” while “Admin.aspx” and “User.aspx” is accessible to both the users.
+
+Below web.config settings show how we can set the user to pages.
+<location path="Admin.aspx">
+<system.web>
+<authorization>
+<allow users="Shiv"/>
+<deny users="*"/>
+</authorization>
+</system.web>
+</location>
+<location path="User.aspx">
+<system.web>
+<authorization>
+<allow users="Shiv"/>
+<allow users="Raju"/>
+<deny users="*"/>
+</authorization>
+</system.web>
+</location>
+
+Step 4 :- We now create our custom page which will accept userid and password.
+UserName: ----
+Password: ------
+Button
+In the button click we provide the below code. The “FormsAuthentication.Authenticate” looks in the web.config the username and passwords. 
+The “FormsAuthentication.RedirectFromLoginPage” creates cookies at the browser end.
+
+=> Passport authentication is based on the passport website provided by the Microsoft .So when user logins with credentials it will be reached to the passport website ( i.e. hotmail,devhood,windows live etc) where authentication will happen. If Authentication is successful it will return a token to your website.
 
