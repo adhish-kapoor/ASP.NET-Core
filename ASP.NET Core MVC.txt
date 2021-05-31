@@ -849,4 +849,39 @@ A. ViewModel can be defined as a plain class having different properties.
 It is used for binding a view that is strongly-typed. 
 ViewModel consists of various validation rules for defining the properties of practicing data annotation.
 
-28. 
+28. What are HTML helpers in MVC?
+
+A. With MVC, HTML helpers are much like traditional ASP.NET Web Form controls.
+ 
+Just like web form controls in ASP.NET, HTML helpers are used to modify HTML. 
+But HTML helpers are more lightweight. Unlike Web Form controls, an HTML helper does not have an event model and a view state.
+In most cases, an HTML helper is just a method that returns a string. 
+With MVC, you can create your own helpers, or use the built in HTML helpers.
+
+Standard HTML Helpers
+ 
+HTML Links
+ 
+The easiest way to render an HTML link in is to use the HTML.ActionLink() helper.
+With MVC, the Html.ActionLink() does not link to a view. It creates a link to a controller action.
+ASP Syntax
+<%=Html.ActionLink("About this Website", "About")%>  
+The first parameter is the link text, and the second parameter is the name of the controller action.
+ 
+The Html.ActionLink() helper above, outputs the following HTML:
+<a href="/Home/About">About this Website</a> 
+
+HTML Form Elements
+There following HTML helpers can be used to render (modify and output) HTML form elements: 
+BeginForm()
+EndForm()
+TextArea()
+TextBox()
+CheckBox()
+RadioButton()
+ListBox()
+DropDownList()
+Hidden()
+Password()
+
+29. 
