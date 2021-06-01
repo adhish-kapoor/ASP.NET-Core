@@ -884,4 +884,62 @@ DropDownList()
 Hidden()
 Password()
 
-29. 
+29. What is the use of remote validation in MVC?
+
+A. Remote validation is the process where we validate specific data posting data to a server without posting the entire form data to the server. 
+Let's see an actual scenario, in one of my projects I had a requirement to validate an email address, whetehr it already exists in the database.
+Remote validation was useful for that; without posting all the data we can validate only the email address supplied by the user.
+
+public class UserModel   
+{  
+    [Required]  
+    public string UserName   
+    {  
+        get;  
+        set;  
+    }  
+    [Remote("CheckExistingEmail", "Home", ErrorMessage = "Email already exists!")]  
+    public string UserEmailAddress  
+    {  
+        get;  
+        set;  
+    }  
+}  
+
+Let's get some understanding of the remote attribute used, so the very first parameter “CheckExistingEmail” is the the name of the action.
+The second parameter “Home” is referred to as controller so to validate the input for the UserEmailAddress
+the “CheckExistingEmail” action of the “Home” controller is called and the third parameter is the error message.
+Let's implement the “CheckExistingEmail” action result in our home controller.
+
+public ActionResult CheckExistingEmail(string UserEmailAddress)  
+{  
+    bool ifEmailExist = false;  
+    try  
+    {  
+        ifEmailExist = UserEmailAddress.Equals("mukeshknayak@gmail.com") ? true : false;  
+        return Json(!ifEmailExist, JsonRequestBehavior.AllowGet);  
+    } catch (Exception ex)  
+    {  
+        return Json(false, JsonRequestBehavior.AllowGet);  
+    }  
+}  
+
+30. What is Scaffolding in MVC?
+
+A. Scaffolding is a code generation framework for ASP.NET Web applications. 
+Visual Studio 2013 includes pre-installed code generators for MVC and Web API projects. 
+You add scaffolding to your project when you want to quickly add code that interacts with data models. 
+Using scaffolding can reduce the amount of time to develop standard data operations in your project.
+
+To use ASP.NET Scaffolding, you must have,
+Microsoft Visual Studio 2013
+Web Developer Tools (part of default Visual Studio 2013 installation)
+ASP.NET Web Frameworks and Tools 2013 (part of default Visual Studio 2013 installation)
+
+What are the Advantages of using Scaffolding ?
+Minimal or no code to create a data-driven Web applications.
+Quick development time.
+Pages that are fully functional and include display, insert, edit, delete, sorting, and paging functionalities.
+Built-in data validation that is based on the database schema.
+Filters that are created for each foreign key or Boolean fields.
+
