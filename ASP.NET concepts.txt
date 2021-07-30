@@ -1324,4 +1324,48 @@ In the button click we provide the below code. The “FormsAuthentication.Authen
 The “FormsAuthentication.RedirectFromLoginPage” creates cookies at the browser end.
 
 => Passport authentication is based on the passport website provided by the Microsoft .So when user logins with credentials it will be reached to the passport website ( i.e. hotmail,devhood,windows live etc) where authentication will happen. If Authentication is successful it will return a token to your website.
+======================================
+21. What are various page events in ASP.NET?
+Following are the page level events in ASP.NET.
+
+PreInit: This is the first event of a page used to set values such as a master page.
+
+Init: This event fires after each control have been initialized. You can use this event to change the initialized value of controls.
+
+InitComplete: This event is raised after all initializations of a page and its controls have been completed.
+
+PreLoad: This event fires before view state has been loaded for a page and its controls and before page postback processing. 
+This event is useful when you need to write code after the page is initialized.
+
+Load(PageLoad): Page load event is generally used to check postback and then sets control properties appropriately. 
+After this event, the load event of child control is called.
+
+ControlEvents(Postback): This event is called when a page or its controls causes postback such as ButtonClick event, SelectedIndexChanged event, CheckedChanged events etc.
+
+LoadComplete: At this event, all controls are loaded even after additional processing can be done here.
+
+PreRender: This event is taking place before view state is saved also it allows final changes to the page or its control.
+
+SaveStateComplete: Any changes to the page’s controls at this point are ignored here. 
+This event is useful if you need to write processing that requires the view state to be set.
+
+Render: In real it is not an event this is actually a method of a page object and its controls. 
+At this point, controls are rendered in client-side HTML , DHTML, and scripts for the browser.
+
+Unload: This event is used to clean up code you can use it to manually release resources.
+=============================
+22. What are Globalization and Localization?
+Globalization is the process of designing and developing an application that functions for multiple cultures or locales. 
+In other words, Globalization is the process of designing and developing an application in such a way that it can be used by users of multiple cultures. 
+Globalization makes your application ready for international markets. This process involves:
+
+-Identifying the culture and locale that must be supported by the application.
+
+-Designing features to support those cultures and locales.
+
+-Writing code that functions equally well with all the supported cultures and locales.
+
+Localization is the process of customizing your application for a given culture or locale. 
+In other words, Localization is the process of customizing your application in such a way that it behaves as per current culture or locale. 
+Typically, Localization translates your application UI into current culture or locale.
 
