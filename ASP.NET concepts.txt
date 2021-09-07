@@ -1546,4 +1546,24 @@ Response.Redirect("ShowStringValue.aspx?Username=" + txtUsername.Text);
 
 It is visible to all the users in url as in the following link,
 localhost:2345/UI/ShowStringValue.aspx?Username=Adhish
+=======================================================
+26. Impersonation with ASP.NET 2.0
+A. Impersonation is the process of executing code in the context of another user identity. 
+By default, all ASP.NET code is executed using a fixed machine-specific account. 
+To execute code using another identity we can use the built-in impersonation capabilities of ASP.NET. 
+We can use a predefined user account or user's identity, if the user has already been authenticated using a windows account.
+
+Implement Impersonation:
+
+Impersonate the Microsoft IIS Authenticated Account or User:
+To impersonate the IIS authenticating user on every request for every page in an ASP.NET application, 
+we must include an <identity> tag in the Web.config file of this application and set the impersonate attribute to true.
+
+<identity impersonate="true" /> 
+
+Impersonate a Specific User:
+To impersonate a specific user for all the requests on all pages of an ASP.NET application, 
+you can specify the userName and password attributes in the <identity> tag of the Web.config file for that application.
+
+<identity impersonate="true" userName="AccountNAME" password="Password" />
 
