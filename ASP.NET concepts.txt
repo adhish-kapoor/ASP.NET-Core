@@ -1368,4 +1368,182 @@ Globalization makes your application ready for international markets. This proce
 Localization is the process of customizing your application for a given culture or locale. 
 In other words, Localization is the process of customizing your application in such a way that it behaves as per current culture or locale. 
 Typically, Localization translates your application UI into current culture or locale.
+================================================
+23. AutoPostBack in ASP.NET ?
+A. AutoPostBack property allows controls which cannot submit the Form (PostBack) on their own and 
+hence ASP.Net has provided a feature using which controls like DropDownList, CheckBoxList, RadioButtonList, etc. can perform PostBack.
+AutoPostBack property uses JavaScript and HiddenFields for performing PostBack. There are two HiddenFields 
+__EVENTTARGET and __EVENTARGUMENT and a JavaScript function __doPostBack.
+
+Example of AutoPostBack using DropDownList
+<asp:DropDownList ID="ddlFruits" runat="server" AutoPostBack = "true" OnSelectedIndexChanged = "OnSelectedIndexChanged">
+    <asp:ListItem Text="Mango" Value="1" />
+    <asp:ListItem Text="Apple" Value="2" />
+    <asp:ListItem Text="Banana" Value="3" />
+    <asp:ListItem Text="Guava" Value="4" />
+    <asp:ListItem Text="Orange" Value="5" />
+</asp:DropDownList>
+
+When an item is changed in ASP.Net DropDownList, the following OnSelectedIndexChanged event handler is executed.
+protected void OnSelectedIndexChanged(object sender, EventArgs e)
+{
+    string message = ddlFruits.SelectedItem.Text + " - " + ddlFruits.SelectedItem.Value;
+    ClientScript.RegisterStartupScript(this.GetType(), "alert", "alert('" + message + "');", true);
+}
+===============================
+24. What is event bubbling?
+A. Handling child controls events through parent control in data bind controls known as event bubbling. 
+That means, when events occurred in child controls , the event is bubbled to the parent control. 
+A control can participate in event bubbling through two methods that it inherits from the base class System.Web.UI.Control.
+
+These methods are OnBubbleEvent and RaiseBubbleEvent. To handle or to raise the bubbled event, a control must override the OnBubbleEvent method. 
+RaiseBubbleEvent sends the event data up the hierarchy to the control's parent.
+ 
+protected virtual bool OnBubbleEvent(
+   object source,
+   EventArgs args
+);
+protected void RaiseBubbleEvent(
+   object source,
+   EventArgs args
+);
+
+Any event defined on a server control can be bubbled . Server controls like Datagrid, DataList, and Repeater can have other child controls inside them.
+================================================
+25. ASP.NET State Management
+A. State management maintains and stores the information of any user till the end of the user session.
+
+I. Server side
+a. Session
+=================
+Session is a very important technique to maintain state. 
+Normally session is used to store information and identity. The server stores information using Sessionid.
+
+Set User Session
+protected void btnSubmit_Click(object sender, EventArgs e)  
+{  
+   Session["UserName"] = txtName.Text;  
+  
+   Response.Redirect("Home.aspx");  
+}  
+
+Session Event
+Session event can be seen in project Global.asax file.
+Two types of Session Events
+
+Session_Start
+The Session_start event is raised every time a new user requests without a session ID.
+void Session_Start(object sender, EventArgs e)  
+{  
+   Session["master"] = "~/Master.master";  
+}
+
+Session_End
+The Session_End event is raised when session is ended by a user or a time out using Session end method.
+void Session_End(object sender, EventArgs e)  
+{  
+   Response.Write("Session_End");  
+} 
+
+b. Application
+===================
+Application State is a server side management state. It is also called application level state management. In this mainly store user activity in server memory and application event shown in Global.asax file.
+
+Their are three types of applications in ASP.NET
+
+Application_Start
+This event begins with domain start.
+Void Application_Start(object sender, EventArgs e)  
+{  
+   Application["AppstartMessage"] = "Welcome to CSharp Corner Developer Communtiy";  
+}
+
+Application_Error
+In this section manage unhandled exception error.
+void Application_Error(object sender, EventArgs e)   
+{   
+   // Write an unhandled error code exception  
+}
+
+Application_End
+This ends with domain or restarts IIS.
+Void Application_End(object sender, EventArgs e)  
+{  
+   Application["AppEndMessage"] = "Application Closed";  
+}  
+
+c. Cache
+===============
+Cache is stored on server side. It implements Page Caching and data caching. Cache is use to set expiration polices
+
+Response.Cache.SetExpiresTime(DateTime.Now.AddDays(1));
+
+II. Client side
+a. Cookie
+==============
+Cookie is a small and an important part of ASP.NET. In this store user information, session and application. 
+It can be created constant and temporary and they work with browser request. Cookies are store on client side. 
+The server can read cookies and abstract data.
+
+Two types of cookies are available,
+
+Persistence
+==================
+This type of cookie works with Date and time.
+Response.Cookies["CookieName"].Value = "Test Cookies";  
+//set expire time   
+Response.Cookies["CookieName"].Expires = DateTime.Today.AddHours(1); 
+
+Non-Persistence
+==================
+This is a temporary cookie. It is created with access application and discards the close application.
+Response.Cookies["CookieName"].Value = "Test Cookies"; 
+
+b. Control state
+=====================
+Control state technique is developed to maintain data work properly in order. 
+We can use view state but suppose view state is disabled by the user, the control will not work as expected. 
+For expected results of the control we have to use Control State. In application, the Viewstate is by default true. 
+Sometimes we need to use custom control to manage application properly.
+
+if (!IsPostBack)  
+{  
+   lblmsg1.Text = "Welcome to C# corner";  
+   lblmsg2.Text = "Welcome to C# corner community";  
+}   
+When two messages are displayed on a Postback event, then control which one is displayed by using customized control state.
+
+c. Hidden Field
+===================
+Hidden fields are used to store value to client side. Hidden field is not displayed on the browser, but it works on a request.
+if (HiddenField1.Value != null)  
+{  
+   int val = Convert.ToInt32(HiddenField1.Value) + 1;  
+   HiddenField1.Value = val.ToString();  
+   Label1.Text = val.ToString();  
+}  
+
+d. Viewstate
+=====================
+Viewstate is a very useful client side property. It is used for page level state management.
+Viewstate stores any type of data and used for sending and receiving information,
+
+Set/Get user
+if (ViewState["UserName"] != null)  
+lblName.Text = ViewState["UserName"].ToString();  
+OR,
+ViewState["UserName"] = txtUserName.Text;  
+
+Viewstate is easy to apply and does not need access to any server resources. In a Viewstate, do not store big data, only store small values. 
+Viewstate enables and disables on page level control. It also supports Encryption and Decryption and data/value is stored in hashed format. 
+So we are not storing important data such as password, account information, etc. When more data is stored in this, then the page becomes heavy.
+
+e. Query String
+====================
+Query string stores the value in URL.
+
+Response.Redirect("ShowStringValue.aspx?Username=" + txtUsername.Text);
+
+It is visible to all the users in url as in the following link,
+localhost:2345/UI/ShowStringValue.aspx?Username=Adhish
 
